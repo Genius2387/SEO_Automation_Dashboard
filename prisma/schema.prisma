@@ -1,0 +1,141 @@
+// Prisma schema for Edgelink SEO Automation Dashboard
+// Database: PostgreSQL (Supabase / Neon)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  ADMIN
+  CLIENT
+}
+
+enum AuditStatus {
+  PENDING
+  QUEUED
+  CRAWLING
+  ANALYZING
+  COMPLETED
+  FAILED
+}
+
+enum NotificationChannel {
+  EMAIL
+  WHATSAPP
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+  SKIPPED
+}
+
+model User {
+  id           String           @id @default(cuid())
+  email        String           @unique
+  name         String?
+  passwordHash String?
+  role         Role             @default(CLIENT)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  audits       Audit[]
+  sessions     Session[]
+  schedules    ScheduledAudit[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([userId])
+  @@map("sessions")
+}
+
+enum ScheduleFrequency {
+  WEEKLY
+  MONTHLY
+}
+
+model ScheduledAudit {
+  id           String            @id @default(cuid())
+  userId       String
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  targetUrl    String
+  businessType String?
+  city         String?
+  state        String?
+  frequency    ScheduleFrequency @default(WEEKLY)
+  isActive     Boolean           @default(true)
+  nextRunAt    DateTime
+  lastRunAt    DateTime?
+  lastAuditId  String?
+  lastAudit    Audit?            @relation(fields: [lastAuditId], references: [id], onDelete: SetNull)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@index([userId])
+  @@index([isActive, nextRunAt])
+  @@map("scheduled_audits")
+}
+
+model Audit {
+  id              String                 @id @default(cuid())
+  targetUrl       String
+  businessType    String?
+  city            String?
+  state           String?
+  status          AuditStatus            @default(PENDING)
+  score           Int?
+  rawCrawlData    Json?
+  aiAnalysisData  Json?
+  pdfReportUrl    String?
+  errorMessage    String?
+  completedAt     DateTime?
+  userId          String?
+  user            User?                  @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  notifications   NotificationDelivery[]
+  scheduledAudits ScheduledAudit[]
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([userId])
+  @@map("audits")
+}
+
+model NotificationDelivery {
+  id           String              @id @default(cuid())
+  auditId      String
+  audit        Audit               @relation(fields: [auditId], references: [id], onDelete: Cascade)
+  channel      NotificationChannel
+  recipient    String
+  status       NotificationStatus  @default(PENDING)
+  providerId   String?
+  attemptCount Int                 @default(1)
+  errorMessage String?
+  metadata     Json?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  @@index([auditId])
+  @@index([channel])
+  @@index([status])
+  @@map("notification_deliveries")
+}
+
