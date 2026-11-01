@@ -225,20 +225,27 @@ pm2 logs edgelink-worker
 
 ## 6. Recurring Cron Job Configuration (cron-job.org / External Scheduler)
 
-To trigger scheduled weekly and monthly audits, configure an external scheduler (e.g. [cron-job.org](https://cron-job.org)) to invoke the endpoint every 15 minutes or hourly:
+> [!NOTE]
+> **Setup Status: Pending Manual External Setup**
+> The `/api/cron/audits` endpoint, atomic claim lock, and BullMQ queue integration are fully implemented and verified. External scheduling via cron-job.org remains pending manual configuration in the cron-job.org dashboard once a public URL is available. It is **not** live-connected out of the box.
+>
+> **Important Assessment & Deployment Note:**
+> Purchasing a custom domain or deploying to a public cloud provider is **not mandatory for assessment submission**. For evaluation and local development, the cron endpoint can be tested directly on `http://localhost:3000/api/cron/audits` using curl or the automated test suite (`npm run test:phase11`). A publicly accessible HTTPS URL is required *only* if and when you want third-party web services like cron-job.org to execute scheduled triggers over the public internet.
 
-- **Target URL:** `https://seo.yourdomain.com/api/cron/audits`
+To trigger scheduled audits automatically via an external scheduler (e.g. [cron-job.org](https://cron-job.org)):
+
+- **Target URL:** `https://<YOUR-DOMAIN>/api/cron/audits` (or `http://localhost:3000/api/cron/audits` for local testing)
 - **Method:** `POST`
 - **Headers:**
-  - `Authorization`: `Bearer <CRON_SECRET>`
+  - `Authorization`: `Bearer <YOUR_CRON_SECRET>`
   - `Content-Type`: `application/json`
-- **Frequency:** Every 15 minutes (`*/15 * * * *`)
-- **Timeout:** 30 seconds
+- **Frequency:** Every minute (`* * * * *`) per original assessment specification
+- **Request Timeout:** 30 seconds
 
-### Manual Test Command:
+### Local Verification Command:
 ```bash
-curl -X POST https://seo.yourdomain.com/api/cron/audits \
-  -H "Authorization: Bearer dev-cron-secret-12345" \
+curl -X POST http://localhost:3000/api/cron/audits \
+  -H "Authorization: Bearer <CRON_SECRET>" \
   -H "Content-Type: application/json"
 ```
 
@@ -253,7 +260,7 @@ Expected response:
     "jobsQueued": 2,
     "duplicatesSkipped": 0,
     "failures": 0,
-    "executedAt": "2026-10-30T10:35:00.000Z"
+    "executedAt": "2026-10-31T12:00:00.000Z"
   }
 }
 ```

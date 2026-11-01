@@ -28,6 +28,7 @@ import {
 } from "../src/app/api/schedules/[id]/route";
 import { POST as handleRunSchedule } from "../src/app/api/schedules/[id]/run/route";
 import { POST as handleCronAudits } from "../src/app/api/cron/audits/route";
+import { isAuthorizedCronRequest } from "../src/lib/cronAuth";
 import { GET as handleHealth } from "../src/app/api/health/route";
 import { GET as handleGetReport } from "../src/app/api/audits/[id]/report/route";
 import { closeRedisConnections } from "../src/queue";
@@ -398,6 +399,66 @@ async function runPhase11Tests() {
     const badSecretCronRes = await handleCronAudits(badSecretCronReq);
     assert.strictEqual(badSecretCronRes.status, 401, "Invalid CRON_SECRET must return 401");
     console.log("     ✓ Unauthorized cron requests correctly rejected.");
+
+    // 3.1b Production-specific Cron Security Checks
+    console.log("  -> 3.1b Testing production-specific CRON_SECRET enforcement...");
+    const envObj = process.env as Record<string, string | undefined>;
+    const originalEnv = envObj.NODE_ENV;
+    const originalSecret = envObj.CRON_SECRET;
+    try {
+      envObj.NODE_ENV = "production";
+
+      // 1. Production with dev fallback secret: MUST FAIL
+      envObj.CRON_SECRET = "dev-cron-secret-12345";
+      const prodDevFallbackReq = new NextRequest("http://localhost:3000/api/cron/audits", {
+        method: "POST",
+        headers: { Authorization: "Bearer dev-cron-secret-12345" },
+      });
+      assert.strictEqual(
+        isAuthorizedCronRequest(prodDevFallbackReq),
+        false,
+        "Production must strictly reject 'dev-cron-secret-12345'"
+      );
+
+      // 2. Production with missing CRON_SECRET: MUST FAIL
+      delete envObj.CRON_SECRET;
+      const prodMissingSecretReq = new NextRequest("http://localhost:3000/api/cron/audits", {
+        method: "POST",
+        headers: { Authorization: "Bearer some-attempted-token" },
+      });
+      assert.strictEqual(
+        isAuthorizedCronRequest(prodMissingSecretReq),
+        false,
+        "Production must fail closed when CRON_SECRET is missing"
+      );
+
+      // 3. Production with valid custom secret: MUST SUCCEED with matching Bearer token
+      envObj.CRON_SECRET = "prod-strong-entropy-secret-9876543210";
+      const prodValidReq = new NextRequest("http://localhost:3000/api/cron/audits", {
+        method: "POST",
+        headers: { Authorization: "Bearer prod-strong-entropy-secret-9876543210" },
+      });
+      assert.strictEqual(
+        isAuthorizedCronRequest(prodValidReq),
+        true,
+        "Production must authorize with matching custom CRON_SECRET"
+      );
+
+      // 4. Production with valid custom secret but wrong token: MUST FAIL
+      const prodWrongTokenReq = new NextRequest("http://localhost:3000/api/cron/audits", {
+        method: "POST",
+        headers: { Authorization: "Bearer wrong-token" },
+      });
+      assert.strictEqual(
+        isAuthorizedCronRequest(prodWrongTokenReq),
+        false,
+        "Production must reject invalid token"
+      );
+    } finally {
+      envObj.NODE_ENV = originalEnv;
+      envObj.CRON_SECRET = originalSecret;
+    }
+    console.log("     ✓ Production-specific CRON_SECRET enforcement verified.");
 
     // 3.2 Due Schedule Execution
     console.log("  -> 3.2 Testing due schedule processing via authorized cron...");

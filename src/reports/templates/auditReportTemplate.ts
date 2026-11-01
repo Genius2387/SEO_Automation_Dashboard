@@ -498,6 +498,7 @@ export function buildAuditReportHtml(data: AuditReportData): string {
         <div><strong>Audit ID:</strong> ${escapeHtml(data.auditId)}</div>
         <div><strong>Generated:</strong> ${escapeHtml(generatedAt)}</div>
         ${data.completedAt ? `<div><strong>Completed:</strong> ${escapeHtml(formatDate(data.completedAt))}</div>` : ""}
+        <div><strong>AI Synthesis:</strong> ${data.aiAnalysis?.audit_version?.includes("mock") ? "MOCK Claude (Offline Engine)" : `REAL Claude (${escapeHtml(data.aiAnalysis?.audit_version || "Live API")})`}</div>
       </div>
     </div>
 

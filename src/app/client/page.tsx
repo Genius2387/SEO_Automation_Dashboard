@@ -73,6 +73,7 @@ interface AuditRecordData {
   persisted?: boolean;
   storage?: string;
   aiAnalysisData?: {
+    audit_version?: string;
     overall_score?: number;
     executive_summary?: string;
     score_breakdown?: ScoreBreakdown;
@@ -1526,11 +1527,24 @@ export default function ClientDashboardPage() {
                   {/* Executive AI Summary Card */}
                   <Card className="bg-slate-900 border-slate-800 text-slate-100 md:col-span-2">
                     <CardHeader>
-                      <CardTitle className="text-base text-white flex items-center gap-2">
-                        <Sparkles className="h-5 w-5 text-indigo-400" /> Executive AI Summary
-                      </CardTitle>
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <CardTitle className="text-base text-white flex items-center gap-2">
+                          <Sparkles className="h-5 w-5 text-indigo-400" /> Executive AI Summary
+                        </CardTitle>
+                        {selectedAudit.aiAnalysisData?.audit_version?.includes("mock") ? (
+                          <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-[10px]">
+                            MOCK Claude (Offline Engine)
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-[10px]">
+                            REAL Claude ({selectedAudit.aiAnalysisData?.audit_version || "Live API"})
+                          </Badge>
+                        )}
+                      </div>
                       <CardDescription className="text-slate-400 text-xs">
-                        Synthesized by Claude AI analysis engine from live crawl evidence
+                        {selectedAudit.aiAnalysisData?.audit_version?.includes("mock")
+                          ? "Generated via deterministic mock AI engine (zero Anthropic API credits consumed)"
+                          : "Synthesized by Anthropic Claude AI analysis engine from live crawl evidence"}
                       </CardDescription>
                     </CardHeader>
                     <CardContent>

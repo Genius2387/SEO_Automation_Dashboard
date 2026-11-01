@@ -1,23 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ScheduleService } from "@/services/scheduleService";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
+import { isAuthorizedCronRequest } from "@/lib/cronAuth";
 
 export const dynamic = "force-dynamic";
-
-/**
- * Validates the caller's CRON_SECRET from authorization header or x-cron-secret
- */
-function isAuthorizedCronRequest(req: NextRequest): boolean {
-  const cronSecret = process.env.CRON_SECRET || "dev-cron-secret-12345";
-  const headerSecret = req.headers.get("x-cron-secret")?.trim();
-  const authHeader = req.headers.get("authorization");
-  const bearerSecret = authHeader?.startsWith("Bearer ")
-    ? authHeader.slice(7).trim()
-    : null;
-
-  const provided = headerSecret || bearerSecret;
-  return Boolean(provided && provided === cronSecret);
-}
 
 async function handleCronTrigger(req: NextRequest) {
   const ip = getClientIp(req);

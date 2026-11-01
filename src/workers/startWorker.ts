@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { createAuditWorker } from "./auditWorker";
 import { closeRedisConnections, getQueueMetrics } from "@/queue";
 import { AuditService } from "@/services/auditService";

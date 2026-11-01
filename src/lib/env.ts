@@ -12,7 +12,20 @@ const envSchema = z.object({
     .union([z.string(), z.boolean()])
     .transform((val) => val === true || val === "true" || val === "1")
     .default(true),
-  CRON_SECRET: z.string().min(1, "CRON_SECRET is required").default("dev-cron-secret-12345"),
+  CRON_SECRET: z
+    .string()
+    .min(1, "CRON_SECRET is required")
+    .refine(
+      (val) => {
+        if (process.env.NODE_ENV === "production") {
+          return val !== "dev-cron-secret-12345";
+        }
+        return true;
+      },
+      { message: "In production, CRON_SECRET cannot use the development default 'dev-cron-secret-12345'." }
+    )
+    .optional()
+    .default(process.env.NODE_ENV === "production" ? (undefined as unknown as string) : "dev-cron-secret-12345"),
   ADMIN_SECRET_KEY: z.string().optional().default("dev-admin-secret"),
 });
 

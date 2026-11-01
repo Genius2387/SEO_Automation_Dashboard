@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# generated report artifacts
+/storage/reports/*.pdf
+!/storage/reports/.gitkeep

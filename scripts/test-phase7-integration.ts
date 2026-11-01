@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
+import "dotenv/config";
 import assert from "assert";
 import { NextRequest } from "next/server";
 import prisma from "../src/lib/prisma";

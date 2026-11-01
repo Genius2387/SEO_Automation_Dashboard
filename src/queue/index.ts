@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { Queue, QueueOptions } from "bullmq";
 import Redis, { RedisOptions } from "ioredis";
 import { z } from "zod";

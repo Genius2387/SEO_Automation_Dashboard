@@ -95,6 +95,7 @@ interface AuditRecordItem {
   userId?: string | null;
   rawCrawlData?: Record<string, unknown> | null;
   aiAnalysisData?: {
+    audit_version?: string;
     overall_score?: number;
     executive_summary?: string;
     score_breakdown?: {
@@ -1766,7 +1767,18 @@ export default function AdminPortalPage() {
               {/* AI Executive Summary */}
               {selectedAudit.aiAnalysisData?.executive_summary && (
                 <div className="space-y-2">
-                  <h4 className="text-xs font-semibold uppercase text-slate-400">Executive Summary</h4>
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-semibold uppercase text-slate-400">Executive Summary</h4>
+                    {selectedAudit.aiAnalysisData?.audit_version?.includes("mock") ? (
+                      <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-[10px]">
+                        MOCK Claude (Offline Engine)
+                      </Badge>
+                    ) : (
+                      <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-[10px]">
+                        REAL Claude ({selectedAudit.aiAnalysisData?.audit_version || "Live API"})
+                      </Badge>
+                    )}
+                  </div>
                   <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 leading-relaxed">
                     {selectedAudit.aiAnalysisData.executive_summary}
                   </div>
