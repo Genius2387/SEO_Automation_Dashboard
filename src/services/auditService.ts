@@ -121,32 +121,6 @@ export class AuditService {
       }
     }
 
-    // Fast-path in-memory simulation for mock mode without database
-    if (isMock && process.env.USE_MOCKS === "true") {
-      const mockId = `mock-audit-${Date.now()}`;
-      return {
-        id: mockId,
-        targetUrl: input.targetUrl,
-        businessType: input.businessType || null,
-        city: input.city || null,
-        state: input.state || null,
-        status: "QUEUED",
-        score: null,
-        rawCrawlData: null,
-        aiAnalysisData: null,
-        pdfReportUrl: null,
-        errorMessage: null,
-        completedAt: null,
-        userId: verifiedUserId,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        persisted: false,
-        storage: "in-memory-mock",
-        jobId: `mock-job-${Date.now()}`,
-        deduplicated: false,
-      };
-    }
-
     // 1. Check for active duplicate audit (submitted within last 5 minutes that is still processing)
     try {
       const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);

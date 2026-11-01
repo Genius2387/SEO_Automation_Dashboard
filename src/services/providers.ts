@@ -24,13 +24,52 @@ export class ProviderNotConfiguredError extends Error {
 }
 
 /**
- * Determines whether mock mode is active, giving caller-provided override precedence
+ * Determines whether mock mode is active for crawler execution.
+ * Precedence: override argument -> CRAWLER_USE_MOCKS -> USE_MOCKS -> false
  */
-export function isMockActive(override?: boolean): boolean {
+export function isCrawlerMockActive(override?: boolean): boolean {
   if (override !== undefined) {
     return override;
   }
+  if (process.env.CRAWLER_USE_MOCKS !== undefined) {
+    return process.env.CRAWLER_USE_MOCKS === "true" || process.env.CRAWLER_USE_MOCKS === "1";
+  }
   return process.env.USE_MOCKS === "true";
+}
+
+/**
+ * Determines whether mock mode is active for Claude AI analysis.
+ * Precedence: override argument -> AI_USE_MOCKS -> USE_MOCKS -> true
+ */
+export function isAiMockActive(override?: boolean): boolean {
+  if (override !== undefined) {
+    return override;
+  }
+  if (process.env.AI_USE_MOCKS !== undefined) {
+    return process.env.AI_USE_MOCKS === "true" || process.env.AI_USE_MOCKS === "1";
+  }
+  return process.env.USE_MOCKS === "true";
+}
+
+/**
+ * Determines whether mock mode is active for third-party SEO data providers (PageSpeed, GSC, DataForSEO, Twilio).
+ * Precedence: override argument -> SEO_PROVIDER_USE_MOCKS -> USE_MOCKS -> true
+ */
+export function isSeoProviderMockActive(override?: boolean): boolean {
+  if (override !== undefined) {
+    return override;
+  }
+  if (process.env.SEO_PROVIDER_USE_MOCKS !== undefined) {
+    return process.env.SEO_PROVIDER_USE_MOCKS === "true" || process.env.SEO_PROVIDER_USE_MOCKS === "1";
+  }
+  return process.env.USE_MOCKS === "true";
+}
+
+/**
+ * Legacy general mock active check. Delegates to isSeoProviderMockActive for backward compatibility.
+ */
+export function isMockActive(override?: boolean): boolean {
+  return isSeoProviderMockActive(override);
 }
 
 /**

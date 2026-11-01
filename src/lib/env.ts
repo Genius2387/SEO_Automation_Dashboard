@@ -12,6 +12,18 @@ const envSchema = z.object({
     .union([z.string(), z.boolean()])
     .transform((val) => val === true || val === "true" || val === "1")
     .default(true),
+  CRAWLER_USE_MOCKS: z
+    .union([z.string(), z.boolean()])
+    .transform((val) => val === true || val === "true" || val === "1")
+    .optional(),
+  AI_USE_MOCKS: z
+    .union([z.string(), z.boolean()])
+    .transform((val) => val === true || val === "true" || val === "1")
+    .optional(),
+  SEO_PROVIDER_USE_MOCKS: z
+    .union([z.string(), z.boolean()])
+    .transform((val) => val === true || val === "true" || val === "1")
+    .optional(),
   CRON_SECRET: z
     .string()
     .min(1, "CRON_SECRET is required")

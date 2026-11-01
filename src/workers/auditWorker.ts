@@ -7,6 +7,7 @@ import {
 import { crawlWebsite, CrawlExecutionError } from "@/crawlers";
 import { analyzeSeoAudit, ClaudeNotConfiguredError, ClaudeAuditResult } from "@/ai";
 import { AuditJobData, NormalizedAuditData } from "@/types";
+import { isCrawlerMockActive, isAiMockActive } from "@/services/providers";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { AuditReportService } from "@/reports";
@@ -128,9 +129,10 @@ export function createAuditWorker(options?: Partial<WorkerOptions>): Worker<Audi
 
         // Step 4b: Execute Phase 4 Fetch + Cheerio Crawler
         try {
-          console.log(`[Worker Job #${job.id}] 🕸️ Crawling target: ${auditRecord.targetUrl}`);
+          const crawlerMock = isCrawlerMockActive(useMocks);
+          console.log(`[Worker Job #${job.id}] 🕸️ Crawling target (${crawlerMock ? "MOCK" : "REAL"}): ${auditRecord.targetUrl}`);
           crawlResult = await crawlWebsite(auditRecord.targetUrl, {
-            useMocks: useMocks !== undefined ? useMocks : undefined,
+            useMocks: crawlerMock,
             businessType: auditRecord.businessType || undefined,
             city: auditRecord.city || undefined,
             state: auditRecord.state || undefined,
@@ -190,9 +192,10 @@ export function createAuditWorker(options?: Partial<WorkerOptions>): Worker<Audi
       // 6. Execute Claude AI Analysis Engine
       let aiResult: ClaudeAuditResult;
       try {
-        console.log(`[Worker Job #${job.id}] 🧠 Running Claude AI Analysis Engine for '${auditId}'`);
+        const aiMock = isAiMockActive(useMocks);
+        console.log(`[Worker Job #${job.id}] 🧠 Running ${aiMock ? "MOCK" : "REAL"} Claude AI Analysis Engine for '${auditId}'`);
         aiResult = await analyzeSeoAudit(crawlResult, {
-          useMocks: useMocks !== undefined ? useMocks : undefined,
+          useMocks: aiMock,
         });
       } catch (aiErr: unknown) {
         const durationMs = Date.now() - startTime;

@@ -16,7 +16,8 @@ import {
   getPageSpeed,
   getSearchConsoleData,
   getDataForSEORankings,
-  isMockActive,
+  isCrawlerMockActive,
+  isSeoProviderMockActive,
   ProviderNotConfiguredError,
 } from "@/services/providers";
 
@@ -32,6 +33,7 @@ export const CRAWLER_USER_AGENT =
 export interface CrawlerOptions {
   timeoutMs?: number;
   useMocks?: boolean;
+  useProviderMocks?: boolean;
   businessType?: string;
   city?: string;
   state?: string;
@@ -113,7 +115,7 @@ export async function crawlWebsite(
     }
   }
 
-  const isMock = isMockActive(options.useMocks);
+  const isMock = isCrawlerMockActive(options.useMocks);
 
   // ---------------------------------------------------------------------------
   // 2. Fast Path: Mock Mode Execution
@@ -547,6 +549,8 @@ export async function crawlWebsite(
     // -------------------------------------------------------------------------
     // 8. External Mock Providers Integration
     // -------------------------------------------------------------------------
+    const isProviderMock = isSeoProviderMockActive(options.useProviderMocks);
+
     // PageSpeed Insights
     let pageSpeedEntry: NormalizedAuditData["pageSpeed"] = {
       status: "unavailable",
@@ -554,10 +558,10 @@ export async function crawlWebsite(
       data: null,
     };
     try {
-      const ps = await getPageSpeed(currentUrl, { useMocks: options.useMocks });
+      const ps = await getPageSpeed(currentUrl, { useMocks: isProviderMock });
       pageSpeedEntry = {
-        status: isMock ? "mock" : "available",
-        source: isMock ? "mock" : "live",
+        status: isProviderMock ? "mock" : "available",
+        source: isProviderMock ? "mock" : "live",
         data: ps,
       };
     } catch (err: unknown) {
@@ -578,11 +582,11 @@ export async function crawlWebsite(
     };
     try {
       const gsc = await getSearchConsoleData(currentUrl, {
-        useMocks: options.useMocks,
+        useMocks: isProviderMock,
       });
       gscEntry = {
-        status: isMock ? "mock" : "available",
-        source: isMock ? "mock" : "live",
+        status: isProviderMock ? "mock" : "available",
+        source: isProviderMock ? "mock" : "live",
         data: gsc,
       };
     } catch (err: unknown) {
@@ -609,11 +613,11 @@ export async function crawlWebsite(
     };
     try {
       const dfs = await getDataForSEORankings(searchKeyword, {
-        useMocks: options.useMocks,
+        useMocks: isProviderMock,
       });
       rankingsEntry = {
-        status: isMock ? "mock" : "available",
-        source: isMock ? "mock" : "live",
+        status: isProviderMock ? "mock" : "available",
+        source: isProviderMock ? "mock" : "live",
         data: dfs,
       };
     } catch (err: unknown) {

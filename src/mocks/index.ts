@@ -29,4 +29,7 @@ export {
   sendWhatsApp,
   ProviderNotConfiguredError,
   isMockActive,
+  isCrawlerMockActive,
+  isAiMockActive,
+  isSeoProviderMockActive,
 } from "@/services/providers";

@@ -68,20 +68,31 @@ This application combines high-performance server-side web crawling, asynchronou
 
 ---
 
-## Live vs. Mock Execution Architecture
+## Live vs. Mock Execution Architecture & Option A
 
-The platform features a central execution switch (`USE_MOCKS`) providing two operational modes:
+The platform provides granular, decoupled execution switches with complete backward compatibility:
 
-### 1. Deterministic Mock Mode (`USE_MOCKS="true"`)
-- **Zero Third-Party API Keys Required:** Evaluators can run the entire system offline out of the box.
-- **Exact Assessment Fixtures:** PageSpeed (Pune dental clinic mobile), Google Search Console (5 Pune dental queries), DataForSEO SERP (rank #4), and Twilio WhatsApp logger.
-- **Deterministic AI Engine:** [`src/ai/mockAi.ts`](file:///src/ai/mockAi.ts) generates valid, evidence-grounded `ClaudeAuditResult` objects conforming strictly to the assessment Zod schema.
-- **Visual Labeling:** Displays amber badges `MOCK Claude (Offline Engine)` in the Client Dashboard, Admin Portal, and PDF reports.
+### Granular Execution Modes
 
-### 2. Live Production Mode (`USE_MOCKS="false"`)
-- **Real External APIs:** Calls real Anthropic Claude API (`claude-sonnet-4-6`) and live web targets.
-- **Zero Silent Fallbacks:** If external provider keys or Anthropic API credentials are missing, unconfigured, or invalid, the engine fails explicitly (`ClaudeNotConfiguredError`, `ProviderNotConfiguredError`) and transitions the audit to `FAILED`. It **never** silently falls back to fake scores in live mode.
-- **Visual Labeling:** Displays green badges `REAL Claude (2026.1)` in the Client Dashboard, Admin Portal, and PDF reports.
+| Environment Variable | Default | Purpose |
+| :--- | :--- | :--- |
+| `USE_MOCKS` | `"true"` | Global master mock toggle (legacy fallback for any unspecified component). |
+| `CRAWLER_USE_MOCKS` | `"false"` | Controls website crawling (`false` = real HTTP fetch & Cheerio extraction; `true` = offline static mock). |
+| `AI_USE_MOCKS` | `"true"` | Controls Claude AI analysis (`true` = deterministic offline AI engine; `false` = real Anthropic Claude API). |
+| `SEO_PROVIDER_USE_MOCKS` | `"true"` | Controls external SEO APIs (`true` = PageSpeed/GSC/DataForSEO fixtures; `false` = live third-party APIs). |
+
+### Recommended Assessment Configuration (Option A: Real Crawling + Mock Claude AI)
+```env
+USE_MOCKS="true"
+CRAWLER_USE_MOCKS="false"
+AI_USE_MOCKS="true"
+SEO_PROVIDER_USE_MOCKS="true"
+```
+- **Real Website Crawling:** Executes live HTTP fetching, redirects traversal, SSRF validations, Cheerio HTML parsing, title/meta extraction, heading inspection, image alt checking, link discovery, robots.txt inspection, XML sitemap verification, and JSON-LD structured data validation.
+- **Deterministic Mock Claude AI (No API Key Required):** Receives the actual crawl findings and dynamically calculates category scores (Technical, On-Page, Content, Core Web Vitals, Schema) and overall score strictly based on the real website's signals.
+- **Score Differentiation:** Auditing two distinct websites produces distinct, evidence-grounded scores and actionable recommendations without needing paid Anthropic or third-party provider accounts.
+- **Provider Mock Transparency:** Core Web Vitals are explicitly labeled as `Core Web Vitals (Provider Mock)` in the dashboard and PDF reports when third-party provider mocks are active.
+- **Zero Silent Fallback in Live Mode:** When `AI_USE_MOCKS="false"`, the system calls real Claude (`claude-sonnet-4-6`). If the Anthropic API key is unconfigured or rejected, it throws `ClaudeNotConfiguredError` and marks the audit `FAILED` — never silently falling back to mock analysis.
 
 ---
 
@@ -227,6 +238,9 @@ Execute automated regression suites for any phase:
 ```bash
 # Run all automated test suites sequentially
 npm run test
+
+# Option A Architecture Regression Tests (Real Crawler + Mock AI)
+npx tsx scripts/test-option-a.ts
 
 # Mock Fixtures & Provider Abstractions
 npm run test:mocks

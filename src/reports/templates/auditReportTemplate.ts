@@ -152,11 +152,16 @@ export function buildAuditReportHtml(data: AuditReportData): string {
   const scoreColors = getScoreColor(overallScore);
   const breakdown = data.aiAnalysis.score_breakdown;
 
+  const isCwvMock = Boolean(
+    (data as { crawlData?: { pageSpeed?: { status?: string } } }).crawlData?.pageSpeed?.status === "mock" ||
+    process.env.SEO_PROVIDER_USE_MOCKS === "true" ||
+    process.env.USE_MOCKS === "true"
+  );
   const categories = [
     { name: "Technical SEO", weight: "25%", score: breakdown.technical, desc: "Robots.txt, sitemaps, indexing prerequisites, canonicals" },
     { name: "On-Page SEO", weight: "25%", score: breakdown.on_page, desc: "Title tags, meta descriptions, headings, images, link topology" },
     { name: "Content Quality", weight: "20%", score: breakdown.content, desc: "Visible text depth, word volume, readability, thin content defense" },
-    { name: "Core Web Vitals", weight: "15%", score: breakdown.core_web_vitals, desc: "Page performance, render-blocking resources, mobile layout stability" },
+    { name: isCwvMock ? "Core Web Vitals (Provider Mock)" : "Core Web Vitals", weight: "15%", score: breakdown.core_web_vitals, desc: isCwvMock ? "Performance baseline (mock provider fixture; live PageSpeed not queried)" : "Page performance, render-blocking resources, mobile layout stability" },
     { name: "Schema & Metadata", weight: "15%", score: breakdown.schema, desc: "Structured data, Schema.org entities, JSON-LD validity" },
   ];
 

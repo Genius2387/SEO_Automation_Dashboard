@@ -622,76 +622,76 @@ export default function AdminPortalPage() {
     if (activeTab === "schedules") fetchAdminSchedules();
   }, [activeTab, isAuthenticated, fetchOverview, fetchAudits, fetchUsers, fetchQueue, fetchAdminSchedules]);
 
-  // Status Badge Helper
+  // Status Badge Helper (Clean Light Theme)
   const renderStatusBadge = (status: string) => {
     switch (status) {
       case "COMPLETED":
-        return <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">Completed</Badge>;
+        return <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 font-medium">Completed</Badge>;
       case "FAILED":
-        return <Badge className="bg-rose-500/20 text-rose-400 border-rose-500/30">Failed</Badge>;
+        return <Badge className="bg-rose-50 text-rose-700 border-rose-200 font-medium">Failed</Badge>;
       case "QUEUED":
-        return <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">Queued</Badge>;
+        return <Badge className="bg-amber-50 text-amber-700 border-amber-200 font-medium">Queued</Badge>;
       case "CRAWLING":
-        return <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Crawling</Badge>;
+        return <Badge className="bg-sky-50 text-sky-700 border-sky-200 font-medium">Crawling</Badge>;
       case "ANALYZING":
-        return <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">Analyzing</Badge>;
+        return <Badge className="bg-purple-50 text-purple-700 border-purple-200 font-medium">Analyzing</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="outline" className="bg-slate-50 text-slate-700 border-slate-200">{status}</Badge>;
     }
   };
 
   // --- Login Screen (When Not Authenticated) ---
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-center items-center px-4">
+      <div className="min-h-screen bg-slate-50/70 text-slate-900 flex flex-col justify-center items-center px-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-purple-950/60 border border-purple-500/40 text-purple-400 mb-4 shadow-lg shadow-purple-950/50">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-purple-50 border border-purple-200 text-purple-600 mb-4 shadow-xs">
               <Lock className="w-7 h-7" />
             </div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Admin Portal Access</h1>
-            <p className="text-sm text-slate-400 mt-2">
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Admin Portal Access</h1>
+            <p className="text-sm text-slate-600 mt-2">
               Edgelink Technology SEO Automation Operations
             </p>
           </div>
 
-          <Card className="bg-slate-900 border-slate-800 shadow-xl">
+          <Card className="bg-white border-slate-200 shadow-xs rounded-2xl">
             <CardHeader className="space-y-1">
-              <CardTitle className="text-lg text-white">Administrator Verification</CardTitle>
-              <CardDescription className="text-slate-400 text-xs">
+              <CardTitle className="text-lg font-bold text-slate-900">Administrator Verification</CardTitle>
+              <CardDescription className="text-slate-600 text-xs leading-relaxed">
                 Enter your administrative secret key. Authentication is validated strictly on the server before granting access.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-slate-300">Admin Secret Key</label>
+                  <label className="text-xs font-semibold text-slate-700">Admin Secret Key</label>
                   <div className="relative">
-                    <Key className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
+                    <Key className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                     <Input
                       type="password"
                       placeholder="Enter ADMIN_SECRET_KEY..."
                       value={keyInput}
                       onChange={(e) => setKeyInput(e.target.value)}
-                      className="pl-9 bg-slate-950 border-slate-700 text-white placeholder:text-slate-600 focus:border-purple-500"
+                      className="pl-9 bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-purple-600 shadow-2xs h-10"
                     />
                   </div>
                 </div>
 
                 {authError && (
-                  <div className="flex items-center gap-2 p-3 text-xs text-rose-300 bg-rose-950/50 border border-rose-800 rounded-md">
-                    <AlertCircle className="w-4 h-4 shrink-0" />
+                  <div className="flex items-center gap-2 p-3 text-xs text-rose-800 bg-rose-50 border border-rose-200 rounded-xl shadow-2xs">
+                    <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
                     <span>{authError}</span>
                   </div>
                 )}
 
-                <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium">
+                <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium h-10 shadow-xs transition">
                   Authenticate &amp; Access Dashboard
                 </Button>
               </form>
 
-              <div className="mt-6 pt-4 border-t border-slate-800 text-center">
-                <Link href="/" className="inline-flex items-center text-xs text-slate-400 hover:text-white transition">
+              <div className="mt-6 pt-4 border-t border-slate-100 text-center">
+                <Link href="/" className="inline-flex items-center text-xs text-slate-600 hover:text-slate-900 font-medium transition">
                   <ArrowLeft className="w-3.5 h-3.5 mr-1" /> Return to Public Dashboard
                 </Link>
               </div>
@@ -704,19 +704,19 @@ export default function AdminPortalPage() {
 
   // --- Authenticated Admin Dashboard ---
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 pb-16">
+    <div className="min-h-screen bg-slate-50/70 text-slate-900 pb-20">
       {/* Top Header */}
-      <header className="sticky top-0 z-40 border-b border-slate-800 bg-slate-900/80 backdrop-blur-md px-6 py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-xs px-6 py-3.5 flex items-center justify-between shadow-xs">
         <div className="flex items-center space-x-4">
           <Link href="/">
-            <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white">
+            <Button variant="ghost" size="sm" className="text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium">
               <ArrowLeft className="h-4 w-4 mr-2" /> Home
             </Button>
           </Link>
-          <div className="border-l border-slate-800 pl-4">
-            <h1 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+          <div className="border-l border-slate-200 pl-4">
+            <h1 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
               <span>Admin Operations Portal</span>
-              <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-xs">
+              <Badge className="bg-purple-50 text-purple-700 border-purple-200 font-medium text-xs">
                 Live Server
               </Badge>
             </h1>
@@ -724,14 +724,14 @@ export default function AdminPortalPage() {
         </div>
 
         <div className="flex items-center space-x-3">
-          <div className="hidden sm:flex items-center text-xs text-emerald-400 bg-emerald-950/40 border border-emerald-800 px-3 py-1.5 rounded-full">
-            <ShieldCheck className="w-3.5 h-3.5 mr-1.5" /> Server-Verified Admin
+          <div className="hidden sm:flex items-center text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full font-medium shadow-2xs">
+            <ShieldCheck className="w-3.5 h-3.5 mr-1.5 text-emerald-600" /> Server-Verified Admin
           </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={handleLogout}
-            className="text-slate-400 hover:text-rose-400 hover:bg-rose-950/20 text-xs"
+            className="text-slate-600 hover:text-rose-700 hover:bg-rose-50 text-xs font-medium"
           >
             <LogOut className="h-3.5 w-3.5 mr-1.5" /> Sign Out
           </Button>
@@ -741,47 +741,47 @@ export default function AdminPortalPage() {
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-6 pt-8 space-y-6">
         {/* Navigation Tabs */}
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
-          <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             <Button
               variant={activeTab === "overview" ? "default" : "ghost"}
               size="sm"
               onClick={() => setActiveTab("overview")}
-              className={activeTab === "overview" ? "bg-purple-600 text-white" : "text-slate-400 hover:text-white"}
+              className={activeTab === "overview" ? "bg-purple-600 hover:bg-purple-700 text-white font-medium shadow-xs text-xs" : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium text-xs"}
             >
-              <Activity className="w-4 h-4 mr-1.5" /> System Overview
+              <Activity className="w-4 h-4 mr-1.5 text-inherit" /> System Overview
             </Button>
             <Button
               variant={activeTab === "audits" ? "default" : "ghost"}
               size="sm"
               onClick={() => setActiveTab("audits")}
-              className={activeTab === "audits" ? "bg-purple-600 text-white" : "text-slate-400 hover:text-white"}
+              className={activeTab === "audits" ? "bg-purple-600 hover:bg-purple-700 text-white font-medium shadow-xs text-xs" : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium text-xs"}
             >
-              <FileText className="w-4 h-4 mr-1.5" /> Audit Management
+              <FileText className="w-4 h-4 mr-1.5 text-inherit" /> Audit Management
             </Button>
             <Button
               variant={activeTab === "users" ? "default" : "ghost"}
               size="sm"
               onClick={() => setActiveTab("users")}
-              className={activeTab === "users" ? "bg-purple-600 text-white" : "text-slate-400 hover:text-white"}
+              className={activeTab === "users" ? "bg-purple-600 hover:bg-purple-700 text-white font-medium shadow-xs text-xs" : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium text-xs"}
             >
-              <Users className="w-4 h-4 mr-1.5" /> User Management
+              <Users className="w-4 h-4 mr-1.5 text-inherit" /> User Management
             </Button>
             <Button
               variant={activeTab === "schedules" ? "default" : "ghost"}
               size="sm"
               onClick={() => setActiveTab("schedules")}
-              className={activeTab === "schedules" ? "bg-purple-600 text-white" : "text-slate-400 hover:text-white"}
+              className={activeTab === "schedules" ? "bg-purple-600 hover:bg-purple-700 text-white font-medium shadow-xs text-xs" : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium text-xs"}
             >
-              <Clock className="w-4 h-4 mr-1.5" /> Recurring Schedules
+              <Clock className="w-4 h-4 mr-1.5 text-inherit" /> Recurring Schedules
             </Button>
             <Button
               variant={activeTab === "queue" ? "default" : "ghost"}
               size="sm"
               onClick={() => setActiveTab("queue")}
-              className={activeTab === "queue" ? "bg-purple-600 text-white" : "text-slate-400 hover:text-white"}
+              className={activeTab === "queue" ? "bg-purple-600 hover:bg-purple-700 text-white font-medium shadow-xs text-xs" : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium text-xs"}
             >
-              <Server className="w-4 h-4 mr-1.5" /> Queue Diagnostics
+              <Server className="w-4 h-4 mr-1.5 text-inherit" /> Queue Diagnostics
             </Button>
           </div>
 
@@ -796,9 +796,9 @@ export default function AdminPortalPage() {
                 if (activeTab === "queue") fetchQueue();
                 if (activeTab === "schedules") fetchAdminSchedules();
               }}
-              className="border-slate-800 text-slate-300 hover:bg-slate-900 text-xs"
+              className="border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 text-xs shadow-2xs font-medium"
             >
-              <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Refresh Data
+              <RefreshCw className="w-3.5 h-3.5 mr-1.5 text-slate-500" /> Refresh Data
             </Button>
           </div>
         </div>
@@ -806,21 +806,21 @@ export default function AdminPortalPage() {
         {/* Global Notifications */}
         {retryMessage && (
           <div
-            className={`p-3 rounded-lg border text-sm flex items-center justify-between ${
+            className={`p-3.5 rounded-xl border text-sm flex items-center justify-between shadow-xs ${
               retryMessage.type === "success"
-                ? "bg-emerald-950/40 border-emerald-800 text-emerald-300"
-                : "bg-rose-950/40 border-rose-800 text-rose-300"
+                ? "bg-emerald-50 border-emerald-200 text-emerald-900"
+                : "bg-rose-50 border-rose-200 text-rose-900"
             }`}
           >
             <div className="flex items-center gap-2">
               {retryMessage.type === "success" ? (
-                <CheckCircle2 className="w-4 h-4" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
               ) : (
-                <AlertTriangle className="w-4 h-4" />
+                <AlertTriangle className="w-4 h-4 text-rose-600" />
               )}
-              <span>{retryMessage.text}</span>
+              <span className="font-medium text-xs">{retryMessage.text}</span>
             </div>
-            <button onClick={() => setRetryMessage(null)} className="text-xs hover:underline">
+            <button onClick={() => setRetryMessage(null)} className="text-xs hover:underline font-semibold">
               Dismiss
             </button>
           </div>
@@ -832,16 +832,16 @@ export default function AdminPortalPage() {
         {activeTab === "overview" && (
           <div className="space-y-6">
             {overviewLoading && !overviewData && (
-              <div className="p-12 text-center text-slate-400 flex flex-col items-center justify-center space-y-3">
-                <RefreshCw className="w-6 h-6 animate-spin text-purple-400" />
+              <div className="p-12 text-center text-slate-500 flex flex-col items-center justify-center space-y-3">
+                <RefreshCw className="w-6 h-6 animate-spin text-purple-600" />
                 <p className="text-sm">Aggregating live PostgreSQL and Upstash Redis metrics...</p>
               </div>
             )}
 
             {overviewError && (
-              <div className="p-4 rounded-lg bg-rose-950/30 border border-rose-800 text-rose-300 text-sm flex items-center justify-between">
+              <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 text-sm flex items-center justify-between shadow-xs">
                 <span>{overviewError}</span>
-                <Button size="sm" variant="outline" onClick={fetchOverview}>
+                <Button size="sm" variant="outline" onClick={fetchOverview} className="border-rose-200 bg-white text-rose-800 hover:bg-rose-50">
                   Retry
                 </Button>
               </div>
@@ -850,43 +850,43 @@ export default function AdminPortalPage() {
             {overviewData && (
               <>
                 {/* Metric Summary Cards */}
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                  <Card className="bg-slate-900 border-slate-800">
-                    <CardHeader className="p-4 pb-2">
-                      <CardTitle className="text-xs font-medium text-slate-400">Total Audits</CardTitle>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+                  <Card className="bg-white border-slate-200 shadow-2xs hover:border-slate-300 transition rounded-xl">
+                    <CardHeader className="p-4 pb-1">
+                      <CardTitle className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Audits</CardTitle>
                     </CardHeader>
-                    <CardContent className="p-4 pt-0">
-                      <div className="text-2xl font-bold text-white">{overviewData.totalAudits}</div>
+                    <CardContent className="p-4 pt-1">
+                      <div className="text-2xl font-bold text-slate-900">{overviewData.totalAudits}</div>
                       <p className="text-[10px] text-slate-500 mt-0.5">Persisted in DB</p>
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-slate-900 border-slate-800">
-                    <CardHeader className="p-4 pb-2">
-                      <CardTitle className="text-xs font-medium text-slate-400">Completed</CardTitle>
+                  <Card className="bg-white border-slate-200 shadow-2xs hover:border-slate-300 transition rounded-xl">
+                    <CardHeader className="p-4 pb-1">
+                      <CardTitle className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Completed</CardTitle>
                     </CardHeader>
-                    <CardContent className="p-4 pt-0">
-                      <div className="text-2xl font-bold text-emerald-400">{overviewData.completedAudits}</div>
+                    <CardContent className="p-4 pt-1">
+                      <div className="text-2xl font-bold text-emerald-600">{overviewData.completedAudits}</div>
                       <p className="text-[10px] text-slate-500 mt-0.5">Fully analyzed</p>
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-slate-900 border-slate-800">
-                    <CardHeader className="p-4 pb-2">
-                      <CardTitle className="text-xs font-medium text-slate-400">Failed</CardTitle>
+                  <Card className="bg-white border-slate-200 shadow-2xs hover:border-slate-300 transition rounded-xl">
+                    <CardHeader className="p-4 pb-1">
+                      <CardTitle className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Failed</CardTitle>
                     </CardHeader>
-                    <CardContent className="p-4 pt-0">
-                      <div className="text-2xl font-bold text-rose-400">{overviewData.failedAudits}</div>
+                    <CardContent className="p-4 pt-1">
+                      <div className="text-2xl font-bold text-rose-600">{overviewData.failedAudits}</div>
                       <p className="text-[10px] text-slate-500 mt-0.5">Eligible for retry</p>
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-slate-900 border-slate-800">
-                    <CardHeader className="p-4 pb-2">
-                      <CardTitle className="text-xs font-medium text-slate-400">In Progress</CardTitle>
+                  <Card className="bg-white border-slate-200 shadow-2xs hover:border-slate-300 transition rounded-xl">
+                    <CardHeader className="p-4 pb-1">
+                      <CardTitle className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">In Progress</CardTitle>
                     </CardHeader>
-                    <CardContent className="p-4 pt-0">
-                      <div className="text-2xl font-bold text-amber-400">
+                    <CardContent className="p-4 pt-1">
+                      <div className="text-2xl font-bold text-amber-600">
                         {overviewData.queuedAudits + overviewData.crawlingAudits + overviewData.analyzingAudits}
                       </div>
                       <p className="text-[10px] text-slate-500 mt-0.5">
@@ -895,24 +895,24 @@ export default function AdminPortalPage() {
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-slate-900 border-slate-800">
-                    <CardHeader className="p-4 pb-2">
-                      <CardTitle className="text-xs font-medium text-slate-400">Average Score</CardTitle>
+                  <Card className="bg-white border-slate-200 shadow-2xs hover:border-slate-300 transition rounded-xl">
+                    <CardHeader className="p-4 pb-1">
+                      <CardTitle className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Average Score</CardTitle>
                     </CardHeader>
-                    <CardContent className="p-4 pt-0">
-                      <div className="text-2xl font-bold text-cyan-400 flex items-center gap-1">
+                    <CardContent className="p-4 pt-1">
+                      <div className="text-2xl font-bold text-purple-600 flex items-center gap-1">
                         {overviewData.averageScore !== null ? `${overviewData.averageScore}/100` : "N/A"}
                       </div>
                       <p className="text-[10px] text-slate-500 mt-0.5">Completed audits</p>
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-slate-900 border-slate-800">
-                    <CardHeader className="p-4 pb-2">
-                      <CardTitle className="text-xs font-medium text-slate-400">Registered Users</CardTitle>
+                  <Card className="bg-white border-slate-200 shadow-2xs hover:border-slate-300 transition rounded-xl">
+                    <CardHeader className="p-4 pb-1">
+                      <CardTitle className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Registered Users</CardTitle>
                     </CardHeader>
-                    <CardContent className="p-4 pt-0">
-                      <div className="text-2xl font-bold text-purple-400">{overviewData.totalUsers}</div>
+                    <CardContent className="p-4 pt-1">
+                      <div className="text-2xl font-bold text-slate-800">{overviewData.totalUsers}</div>
                       <p className="text-[10px] text-slate-500 mt-0.5">Active accounts</p>
                     </CardContent>
                   </Card>
@@ -920,43 +920,43 @@ export default function AdminPortalPage() {
 
                 {/* Queue Health Card */}
                 {overviewData.queue && (
-                  <Card className="bg-slate-900 border-slate-800">
+                  <Card className="bg-white border-slate-200 shadow-xs rounded-xl">
                     <CardHeader>
                       <div className="flex items-center justify-between">
                         <div>
-                          <CardTitle className="text-base text-white flex items-center gap-2">
-                            <Activity className="w-4 h-4 text-emerald-400" /> BullMQ &amp; Upstash Redis Diagnostics
+                          <CardTitle className="text-base text-slate-900 font-bold flex items-center gap-2">
+                            <Activity className="w-4 h-4 text-emerald-600" /> BullMQ &amp; Upstash Redis Diagnostics
                           </CardTitle>
-                          <CardDescription className="text-slate-400 text-xs">
-                            Active background worker queue: <span className="text-slate-300 font-mono">{overviewData.queue.queueName}</span>
+                          <CardDescription className="text-slate-600 text-xs">
+                            Active background worker queue: <span className="text-slate-900 font-mono font-medium">{overviewData.queue.queueName}</span>
                           </CardDescription>
                         </div>
-                        <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
+                        <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 font-medium">
                           {overviewData.queue.status}
                         </Badge>
                       </div>
                     </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                        <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 text-center">
-                          <span className="text-xs text-slate-400">Waiting</span>
-                          <div className="text-xl font-bold text-white mt-1">{overviewData.queue.counts.waiting}</div>
+                        <div className="p-3 rounded-xl bg-slate-50/80 border border-slate-200/90 text-center shadow-2xs">
+                          <span className="text-xs font-semibold text-slate-600">Waiting</span>
+                          <div className="text-xl font-bold text-slate-900 mt-1">{overviewData.queue.counts.waiting}</div>
                         </div>
-                        <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 text-center">
-                          <span className="text-xs text-slate-400">Active</span>
-                          <div className="text-xl font-bold text-amber-400 mt-1">{overviewData.queue.counts.active}</div>
+                        <div className="p-3 rounded-xl bg-slate-50/80 border border-slate-200/90 text-center shadow-2xs">
+                          <span className="text-xs font-semibold text-slate-600">Active</span>
+                          <div className="text-xl font-bold text-amber-600 mt-1">{overviewData.queue.counts.active}</div>
                         </div>
-                        <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 text-center">
-                          <span className="text-xs text-slate-400">Completed</span>
-                          <div className="text-xl font-bold text-emerald-400 mt-1">{overviewData.queue.counts.completed}</div>
+                        <div className="p-3 rounded-xl bg-slate-50/80 border border-slate-200/90 text-center shadow-2xs">
+                          <span className="text-xs font-semibold text-slate-600">Completed</span>
+                          <div className="text-xl font-bold text-emerald-600 mt-1">{overviewData.queue.counts.completed}</div>
                         </div>
-                        <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 text-center">
-                          <span className="text-xs text-slate-400">Failed</span>
-                          <div className="text-xl font-bold text-rose-400 mt-1">{overviewData.queue.counts.failed}</div>
+                        <div className="p-3 rounded-xl bg-slate-50/80 border border-slate-200/90 text-center shadow-2xs">
+                          <span className="text-xs font-semibold text-slate-600">Failed</span>
+                          <div className="text-xl font-bold text-rose-600 mt-1">{overviewData.queue.counts.failed}</div>
                         </div>
-                        <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 text-center">
-                          <span className="text-xs text-slate-400">Delayed</span>
-                          <div className="text-xl font-bold text-slate-400 mt-1">{overviewData.queue.counts.delayed}</div>
+                        <div className="p-3 rounded-xl bg-slate-50/80 border border-slate-200/90 text-center shadow-2xs">
+                          <span className="text-xs font-semibold text-slate-600">Delayed</span>
+                          <div className="text-xl font-bold text-slate-600 mt-1">{overviewData.queue.counts.delayed}</div>
                         </div>
                       </div>
                     </CardContent>
@@ -964,12 +964,12 @@ export default function AdminPortalPage() {
                 )}
 
                 {/* Recent Failures Card */}
-                <Card className="bg-slate-900 border-slate-800">
+                <Card className="bg-white border-slate-200 shadow-xs rounded-xl">
                   <CardHeader>
-                    <CardTitle className="text-base text-white flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4 text-rose-400" /> Recent Audit Failures &amp; Error Visibility
+                    <CardTitle className="text-base font-bold text-rose-700 flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 text-rose-600" /> Recent Audit Failures &amp; Error Visibility
                     </CardTitle>
-                    <CardDescription className="text-slate-400 text-xs">
+                    <CardDescription className="text-slate-500 text-xs">
                       Persisted audits in FAILED status. Inspect sanitized error causes or trigger safe retries.
                     </CardDescription>
                   </CardHeader>
@@ -983,14 +983,14 @@ export default function AdminPortalPage() {
                         {overviewData.recentFailures.map((f) => (
                           <div
                             key={f.id}
-                            className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3.5 rounded-lg bg-slate-950 border border-slate-800 gap-3"
+                            className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3.5 rounded-xl bg-rose-50/70 border border-rose-200 gap-3 shadow-2xs"
                           >
                             <div className="space-y-1">
                               <div className="flex items-center gap-2">
-                                <span className="font-medium text-white text-sm">{f.targetUrl}</span>
-                                <span className="text-[11px] font-mono text-slate-500">ID: {f.id.slice(0, 8)}...</span>
+                                <span className="font-bold text-slate-900 text-sm">{f.targetUrl}</span>
+                                <span className="text-[11px] font-mono text-slate-400">ID: {f.id.slice(0, 8)}...</span>
                               </div>
-                              <p className="text-xs text-rose-400/90 font-mono">
+                              <p className="text-xs text-rose-900 font-mono bg-white p-2 rounded-lg border border-rose-200">
                                 {f.errorMessage || "Unknown error during crawl or analysis."}
                               </p>
                               <p className="text-[10px] text-slate-500">
@@ -1002,7 +1002,7 @@ export default function AdminPortalPage() {
                               variant="outline"
                               disabled={retryingAuditId === f.id}
                               onClick={() => handleRetryAudit(f.id)}
-                              className="border-rose-900/50 text-rose-300 hover:bg-rose-950/30 text-xs shrink-0"
+                              className="border-rose-300 text-rose-700 hover:bg-rose-100 bg-white text-xs shrink-0 shadow-2xs font-medium"
                             >
                               <RotateCcw className={`w-3.5 h-3.5 mr-1.5 ${retryingAuditId === f.id ? "animate-spin" : ""}`} />
                               Retry Audit
@@ -1027,20 +1027,20 @@ export default function AdminPortalPage() {
             <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <div className="relative w-full sm:w-72">
-                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                   <Input
                     placeholder="Search target URL..."
                     value={auditSearch}
                     onChange={(e) => setAuditSearch(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && fetchAudits(1, auditStatusFilter, auditSearch)}
-                    className="pl-9 bg-slate-900 border-slate-800 text-sm h-9"
+                    className="pl-9 bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 text-sm h-9 shadow-2xs"
                   />
                 </div>
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => fetchAudits(1, auditStatusFilter, auditSearch)}
-                  className="border-slate-800 h-9"
+                  className="border-slate-300 bg-white text-slate-700 hover:bg-slate-50 h-9 shadow-2xs font-medium"
                 >
                   Search
                 </Button>
@@ -1057,8 +1057,10 @@ export default function AdminPortalPage() {
                       setAuditStatusFilter(st);
                       fetchAudits(1, st, auditSearch);
                     }}
-                    className={`h-8 text-xs ${
-                      auditStatusFilter === st ? "bg-purple-600 text-white" : "border-slate-800 text-slate-400"
+                    className={`h-8 text-xs font-medium ${
+                      auditStatusFilter === st
+                        ? "bg-purple-600 hover:bg-purple-700 text-white shadow-xs"
+                        : "bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 shadow-2xs"
                     }`}
                   >
                     {st}
@@ -1068,17 +1070,17 @@ export default function AdminPortalPage() {
             </div>
 
             {/* Audits Table */}
-            <Card className="bg-slate-900 border-slate-800">
+            <Card className="bg-white border-slate-200 shadow-xs rounded-xl">
               <CardContent className="p-0">
                 {auditsLoading ? (
-                  <div className="p-12 text-center text-slate-400 flex items-center justify-center space-x-2">
-                    <RefreshCw className="w-5 h-5 animate-spin text-purple-400" />
+                  <div className="p-12 text-center text-slate-500 flex items-center justify-center space-x-2">
+                    <RefreshCw className="w-5 h-5 animate-spin text-purple-600" />
                     <span>Loading audit records...</span>
                   </div>
                 ) : auditsError ? (
-                  <div className="p-8 text-center text-rose-400 space-y-2">
+                  <div className="p-8 text-center text-rose-600 space-y-2">
                     <p>{auditsError}</p>
-                    <Button size="sm" variant="outline" onClick={() => fetchAudits(auditsPagination.page)}>
+                    <Button size="sm" variant="outline" onClick={() => fetchAudits(auditsPagination.page)} className="border-rose-200 bg-white text-rose-800 hover:bg-rose-50">
                       Retry
                     </Button>
                   </div>
@@ -1089,7 +1091,7 @@ export default function AdminPortalPage() {
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs">
-                      <thead className="bg-slate-950/60 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                      <thead className="bg-slate-50 text-slate-600 font-semibold uppercase tracking-wider border-b border-slate-200">
                         <tr>
                           <th className="py-3 px-4">Audit ID</th>
                           <th className="py-3 px-4">Target URL</th>
@@ -1099,20 +1101,20 @@ export default function AdminPortalPage() {
                           <th className="py-3 px-4 text-right">Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-800/60">
+                      <tbody className="divide-y divide-slate-100">
                         {audits.map((a) => (
-                          <tr key={a.id} className="hover:bg-slate-800/30 transition">
-                            <td className="py-3 px-4 font-mono text-slate-400">{a.id.slice(0, 8)}...</td>
-                            <td className="py-3 px-4 font-medium text-white max-w-xs truncate">{a.targetUrl}</td>
+                          <tr key={a.id} className="hover:bg-slate-50/70 transition">
+                            <td className="py-3 px-4 font-mono text-slate-500">{a.id.slice(0, 8)}...</td>
+                            <td className="py-3 px-4 font-semibold text-slate-900 max-w-xs truncate">{a.targetUrl}</td>
                             <td className="py-3 px-4">{renderStatusBadge(a.status)}</td>
                             <td className="py-3 px-4">
                               {a.score !== null ? (
-                                <span className="font-bold text-cyan-400">{a.score}/100</span>
+                                <span className="font-bold text-purple-600 text-sm">{a.score}/100</span>
                               ) : (
-                                <span className="text-slate-500">—</span>
+                                <span className="text-slate-400">—</span>
                               )}
                             </td>
-                            <td className="py-3 px-4 text-slate-400">
+                            <td className="py-3 px-4 text-slate-600">
                               {new Date(a.createdAt).toLocaleString(undefined, {
                                 month: "short",
                                 day: "numeric",
@@ -1120,17 +1122,17 @@ export default function AdminPortalPage() {
                                 minute: "2-digit",
                               })}
                             </td>
-                            <td className="py-3 px-4 text-right space-x-1">
+                            <td className="py-3 px-4 text-right space-x-1.5">
                               <Button
                                 size="sm"
-                                variant="ghost"
+                                variant="outline"
                                 onClick={() => {
                                   setSelectedAudit(a);
                                   fetchAuditNotifications(a.id);
                                 }}
-                                className="h-7 text-xs text-slate-300 hover:text-white"
+                                className="h-7 text-xs border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-100 bg-white shadow-2xs font-medium"
                               >
-                                <Eye className="w-3.5 h-3.5 mr-1" /> View
+                                <Eye className="w-3.5 h-3.5 mr-1 text-slate-500" /> View
                               </Button>
                               {a.status === "FAILED" && (
                                 <Button
@@ -1138,7 +1140,7 @@ export default function AdminPortalPage() {
                                   variant="outline"
                                   disabled={retryingAuditId === a.id}
                                   onClick={() => handleRetryAudit(a.id)}
-                                  className="h-7 text-xs border-rose-900/60 text-rose-300 hover:bg-rose-950/40"
+                                  className="h-7 text-xs border-rose-300 text-rose-700 hover:bg-rose-50 bg-white shadow-2xs font-medium"
                                 >
                                   <RotateCcw className={`w-3 h-3 mr-1 ${retryingAuditId === a.id ? "animate-spin" : ""}`} />
                                   Retry
@@ -1155,10 +1157,10 @@ export default function AdminPortalPage() {
 
               {/* Pagination Controls */}
               {auditsPagination.totalPages > 1 && (
-                <div className="flex items-center justify-between p-4 border-t border-slate-800 text-xs text-slate-400">
+                <div className="flex items-center justify-between p-4 border-t border-slate-200 text-xs text-slate-600 bg-slate-50/50">
                   <div>
-                    Page <span className="font-medium text-white">{auditsPagination.page}</span> of{" "}
-                    <span className="font-medium text-white">{auditsPagination.totalPages}</span> ({auditsPagination.totalCount} total audits)
+                    Page <span className="font-semibold text-slate-900">{auditsPagination.page}</span> of{" "}
+                    <span className="font-semibold text-slate-900">{auditsPagination.totalPages}</span> ({auditsPagination.totalCount} total audits)
                   </div>
                   <div className="flex items-center space-x-2">
                     <Button
@@ -1166,7 +1168,7 @@ export default function AdminPortalPage() {
                       variant="outline"
                       disabled={auditsPagination.page <= 1 || auditsLoading}
                       onClick={() => fetchAudits(auditsPagination.page - 1)}
-                      className="border-slate-800 h-8"
+                      className="border-slate-200 bg-white text-slate-700 hover:bg-slate-50 h-8 shadow-2xs"
                     >
                       <ChevronLeft className="w-4 h-4 mr-1" /> Prev
                     </Button>
@@ -1175,7 +1177,7 @@ export default function AdminPortalPage() {
                       variant="outline"
                       disabled={auditsPagination.page >= auditsPagination.totalPages || auditsLoading}
                       onClick={() => fetchAudits(auditsPagination.page + 1)}
-                      className="border-slate-800 h-8"
+                      className="border-slate-200 bg-white text-slate-700 hover:bg-slate-50 h-8 shadow-2xs"
                     >
                       Next <ChevronRight className="w-4 h-4 ml-1" />
                     </Button>
@@ -1193,14 +1195,14 @@ export default function AdminPortalPage() {
           <div className="space-y-4">
             {userRoleMessage && (
               <div
-                className={`p-3 rounded-lg border text-sm flex items-center justify-between ${
+                className={`p-3.5 rounded-xl border text-sm flex items-center justify-between shadow-xs ${
                   userRoleMessage.type === "success"
-                    ? "bg-emerald-950/40 border-emerald-800 text-emerald-300"
-                    : "bg-rose-950/40 border-rose-800 text-rose-300"
+                    ? "bg-emerald-50 border-emerald-200 text-emerald-900"
+                    : "bg-rose-50 border-rose-200 text-rose-900"
                 }`}
               >
-                <span>{userRoleMessage.text}</span>
-                <button onClick={() => setUserRoleMessage(null)} className="text-xs hover:underline">
+                <span className="font-medium text-xs">{userRoleMessage.text}</span>
+                <button onClick={() => setUserRoleMessage(null)} className="text-xs hover:underline font-semibold">
                   Dismiss
                 </button>
               </div>
@@ -1209,32 +1211,32 @@ export default function AdminPortalPage() {
             <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
               <div className="flex items-center gap-2 w-full sm:w-72">
                 <div className="relative w-full">
-                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                   <Input
                     placeholder="Search by email or name..."
                     value={userSearch}
                     onChange={(e) => setUserSearch(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && fetchUsers(1, userSearch)}
-                    className="pl-9 bg-slate-900 border-slate-800 text-sm h-9"
+                    className="pl-9 bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 text-sm h-9 shadow-2xs"
                   />
                 </div>
-                <Button size="sm" variant="outline" onClick={() => fetchUsers(1, userSearch)} className="border-slate-800 h-9">
+                <Button size="sm" variant="outline" onClick={() => fetchUsers(1, userSearch)} className="border-slate-300 bg-white text-slate-700 hover:bg-slate-50 h-9 shadow-2xs font-medium">
                   Search
                 </Button>
               </div>
             </div>
 
-            <Card className="bg-slate-900 border-slate-800">
+            <Card className="bg-white border-slate-200 shadow-xs rounded-xl">
               <CardContent className="p-0">
                 {usersLoading ? (
-                  <div className="p-12 text-center text-slate-400 flex items-center justify-center space-x-2">
-                    <RefreshCw className="w-5 h-5 animate-spin text-purple-400" />
+                  <div className="p-12 text-center text-slate-500 flex items-center justify-center space-x-2">
+                    <RefreshCw className="w-5 h-5 animate-spin text-purple-600" />
                     <span>Loading users from database...</span>
                   </div>
                 ) : usersError ? (
-                  <div className="p-8 text-center text-rose-400 space-y-2">
+                  <div className="p-8 text-center text-rose-600 space-y-2">
                     <p>{usersError}</p>
-                    <Button size="sm" variant="outline" onClick={() => fetchUsers(usersPagination.page)}>
+                    <Button size="sm" variant="outline" onClick={() => fetchUsers(usersPagination.page)} className="border-rose-200 bg-white text-rose-800 hover:bg-rose-50">
                       Retry
                     </Button>
                   </div>
@@ -1245,7 +1247,7 @@ export default function AdminPortalPage() {
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs">
-                      <thead className="bg-slate-950/60 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                      <thead className="bg-slate-50 text-slate-600 font-semibold uppercase tracking-wider border-b border-slate-200">
                         <tr>
                           <th className="py-3 px-4">User</th>
                           <th className="py-3 px-4">Role</th>
@@ -1254,27 +1256,27 @@ export default function AdminPortalPage() {
                           <th className="py-3 px-4 text-right">Administrative Action</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-800/60">
+                      <tbody className="divide-y divide-slate-100">
                         {users.map((u) => (
-                          <tr key={u.id} className="hover:bg-slate-800/30 transition">
+                          <tr key={u.id} className="hover:bg-slate-50/70 transition">
                             <td className="py-3 px-4">
-                              <div className="font-medium text-white">{u.email}</div>
-                              {u.name && <div className="text-[11px] text-slate-500">{u.name}</div>}
-                              <div className="text-[10px] font-mono text-slate-600">ID: {u.id}</div>
+                              <div className="font-semibold text-slate-900">{u.email}</div>
+                              {u.name && <div className="text-[11px] text-slate-600">{u.name}</div>}
+                              <div className="text-[10px] font-mono text-slate-400">ID: {u.id}</div>
                             </td>
                             <td className="py-3 px-4">
                               <Badge
                                 className={
                                   u.role === "ADMIN"
-                                    ? "bg-purple-500/20 text-purple-300 border-purple-500/30"
-                                    : "bg-slate-800 text-slate-300 border-slate-700"
+                                    ? "bg-purple-50 text-purple-700 border-purple-200 font-medium"
+                                    : "bg-slate-100 text-slate-700 border-slate-200 font-medium"
                                 }
                               >
                                 {u.role}
                               </Badge>
                             </td>
-                            <td className="py-3 px-4 font-semibold text-slate-300">{u.auditCount}</td>
-                            <td className="py-3 px-4 text-slate-400">
+                            <td className="py-3 px-4 font-bold text-slate-900">{u.auditCount}</td>
+                            <td className="py-3 px-4 text-slate-600">
                               {new Date(u.createdAt).toLocaleDateString()}
                             </td>
                             <td className="py-3 px-4 text-right">
@@ -1283,10 +1285,10 @@ export default function AdminPortalPage() {
                                 variant="outline"
                                 disabled={updatingUserId === u.id}
                                 onClick={() => handleToggleUserRole(u)}
-                                className={`h-7 text-xs border-slate-700 ${
+                                className={`h-7 text-xs border-slate-200 bg-white font-medium shadow-2xs ${
                                   u.role === "ADMIN"
-                                    ? "text-amber-400 hover:bg-amber-950/30"
-                                    : "text-purple-400 hover:bg-purple-950/30"
+                                    ? "text-amber-700 hover:bg-amber-50"
+                                    : "text-purple-700 hover:bg-purple-50"
                                 }`}
                               >
                                 {updatingUserId === u.id ? (
@@ -1306,10 +1308,10 @@ export default function AdminPortalPage() {
               </CardContent>
 
               {usersPagination.totalPages > 1 && (
-                <div className="flex items-center justify-between p-4 border-t border-slate-800 text-xs text-slate-400">
+                <div className="flex items-center justify-between p-4 border-t border-slate-200 text-xs text-slate-600 bg-slate-50/50">
                   <div>
-                    Page <span className="font-medium text-white">{usersPagination.page}</span> of{" "}
-                    <span className="font-medium text-white">{usersPagination.totalPages}</span> ({usersPagination.totalCount} users)
+                    Page <span className="font-semibold text-slate-900">{usersPagination.page}</span> of{" "}
+                    <span className="font-semibold text-slate-900">{usersPagination.totalPages}</span> ({usersPagination.totalCount} users)
                   </div>
                   <div className="flex items-center space-x-2">
                     <Button
@@ -1317,7 +1319,7 @@ export default function AdminPortalPage() {
                       variant="outline"
                       disabled={usersPagination.page <= 1 || usersLoading}
                       onClick={() => fetchUsers(usersPagination.page - 1)}
-                      className="border-slate-800 h-8"
+                      className="border-slate-200 bg-white text-slate-700 hover:bg-slate-50 h-8 shadow-2xs"
                     >
                       <ChevronLeft className="w-4 h-4 mr-1" /> Prev
                     </Button>
@@ -1326,7 +1328,7 @@ export default function AdminPortalPage() {
                       variant="outline"
                       disabled={usersPagination.page >= usersPagination.totalPages || usersLoading}
                       onClick={() => fetchUsers(usersPagination.page + 1)}
-                      className="border-slate-800 h-8"
+                      className="border-slate-200 bg-white text-slate-700 hover:bg-slate-50 h-8 shadow-2xs"
                     >
                       Next <ChevronRight className="w-4 h-4 ml-1" />
                     </Button>
@@ -1343,16 +1345,16 @@ export default function AdminPortalPage() {
         {activeTab === "queue" && (
           <div className="space-y-6">
             {queueLoading && !queueData && (
-              <div className="p-12 text-center text-slate-400 flex items-center justify-center space-x-2">
-                <RefreshCw className="w-5 h-5 animate-spin text-purple-400" />
+              <div className="p-12 text-center text-slate-500 flex items-center justify-center space-x-2">
+                <RefreshCw className="w-5 h-5 animate-spin text-purple-600" />
                 <span>Querying Upstash Redis queue diagnostics...</span>
               </div>
             )}
 
             {queueError && (
-              <div className="p-4 rounded-lg bg-rose-950/30 border border-rose-800 text-rose-300 text-sm flex items-center justify-between">
+              <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 text-sm flex items-center justify-between shadow-xs">
                 <span>{queueError}</span>
-                <Button size="sm" variant="outline" onClick={fetchQueue}>
+                <Button size="sm" variant="outline" onClick={fetchQueue} className="border-rose-200 bg-white text-rose-800 hover:bg-rose-50">
                   Retry
                 </Button>
               </div>
@@ -1361,65 +1363,65 @@ export default function AdminPortalPage() {
             {queueData && (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <Card className="bg-slate-900 border-slate-800">
+                  <Card className="bg-white border-slate-200 shadow-xs rounded-xl">
                     <CardHeader className="p-4">
-                      <CardTitle className="text-xs font-medium text-slate-400">Queue Name</CardTitle>
+                      <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Queue Name</CardTitle>
                     </CardHeader>
                     <CardContent className="p-4 pt-0">
-                      <div className="text-lg font-mono font-bold text-white">{queueData.queueName}</div>
+                      <div className="text-lg font-mono font-bold text-slate-900">{queueData.queueName}</div>
                       <p className="text-[10px] text-slate-500 mt-1">BullMQ Worker Target</p>
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-slate-900 border-slate-800">
+                  <Card className="bg-white border-slate-200 shadow-xs rounded-xl">
                     <CardHeader className="p-4">
-                      <CardTitle className="text-xs font-medium text-slate-400">Redis Connection Status</CardTitle>
+                      <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Redis Connection Status</CardTitle>
                     </CardHeader>
                     <CardContent className="p-4 pt-0">
-                      <div className="text-lg font-bold text-emerald-400 capitalize">{queueData.status}</div>
+                      <div className="text-lg font-bold text-emerald-600 capitalize">{queueData.status}</div>
                       <p className="text-[10px] text-slate-500 mt-1">Upstash TLS Endpoint</p>
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-slate-900 border-slate-800">
+                  <Card className="bg-white border-slate-200 shadow-xs rounded-xl">
                     <CardHeader className="p-4">
-                      <CardTitle className="text-xs font-medium text-slate-400">Active / In-Flight</CardTitle>
+                      <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active / In-Flight</CardTitle>
                     </CardHeader>
                     <CardContent className="p-4 pt-0">
-                      <div className="text-lg font-bold text-amber-400">{queueData.counts.active} Job(s)</div>
+                      <div className="text-lg font-bold text-amber-600">{queueData.counts.active} Job(s)</div>
                       <p className="text-[10px] text-slate-500 mt-1">Currently handled by worker</p>
                     </CardContent>
                   </Card>
                 </div>
 
-                <Card className="bg-slate-900 border-slate-800">
+                <Card className="bg-white border-slate-200 shadow-xs rounded-xl">
                   <CardHeader>
-                    <CardTitle className="text-base text-white">BullMQ Job Status Counters</CardTitle>
-                    <CardDescription className="text-slate-400 text-xs">
+                    <CardTitle className="text-base font-bold text-slate-900">BullMQ Job Status Counters</CardTitle>
+                    <CardDescription className="text-slate-500 text-xs">
                       Live status counts returned by BullMQ Redis adapter
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-                      <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-center">
-                        <span className="text-xs text-slate-400">Waiting in Queue</span>
-                        <div className="text-2xl font-bold text-white mt-2">{queueData.counts.waiting}</div>
+                      <div className="p-4 rounded-xl bg-slate-50/80 border border-slate-200/90 text-center shadow-2xs">
+                        <span className="text-xs font-semibold text-slate-600">Waiting in Queue</span>
+                        <div className="text-2xl font-bold text-slate-900 mt-2">{queueData.counts.waiting}</div>
                       </div>
-                      <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-center">
-                        <span className="text-xs text-slate-400">Active Workers</span>
-                        <div className="text-2xl font-bold text-amber-400 mt-2">{queueData.counts.active}</div>
+                      <div className="p-4 rounded-xl bg-slate-50/80 border border-slate-200/90 text-center shadow-2xs">
+                        <span className="text-xs font-semibold text-slate-600">Active Workers</span>
+                        <div className="text-2xl font-bold text-amber-600 mt-2">{queueData.counts.active}</div>
                       </div>
-                      <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-center">
-                        <span className="text-xs text-slate-400">Completed Jobs</span>
-                        <div className="text-2xl font-bold text-emerald-400 mt-2">{queueData.counts.completed}</div>
+                      <div className="p-4 rounded-xl bg-slate-50/80 border border-slate-200/90 text-center shadow-2xs">
+                        <span className="text-xs font-semibold text-slate-600">Completed Jobs</span>
+                        <div className="text-2xl font-bold text-emerald-600 mt-2">{queueData.counts.completed}</div>
                       </div>
-                      <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-center">
-                        <span className="text-xs text-slate-400">Failed Jobs</span>
-                        <div className="text-2xl font-bold text-rose-400 mt-2">{queueData.counts.failed}</div>
+                      <div className="p-4 rounded-xl bg-slate-50/80 border border-slate-200/90 text-center shadow-2xs">
+                        <span className="text-xs font-semibold text-slate-600">Failed Jobs</span>
+                        <div className="text-2xl font-bold text-rose-600 mt-2">{queueData.counts.failed}</div>
                       </div>
-                      <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-center">
-                        <span className="text-xs text-slate-400">Delayed / Retrying</span>
-                        <div className="text-2xl font-bold text-indigo-400 mt-2">{queueData.counts.delayed}</div>
+                      <div className="p-4 rounded-xl bg-slate-50/80 border border-slate-200/90 text-center shadow-2xs">
+                        <span className="text-xs font-semibold text-slate-600">Delayed / Retrying</span>
+                        <div className="text-2xl font-bold text-slate-600 mt-2">{queueData.counts.delayed}</div>
                       </div>
                     </div>
                   </CardContent>
@@ -1434,28 +1436,28 @@ export default function AdminPortalPage() {
         {/* ========================================================================= */}
         {activeTab === "schedules" && (
           <div className="space-y-6">
-            <div className="border-b border-slate-800 pb-4">
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <Clock className="w-5 h-5 text-purple-400" /> Platform-Wide Recurring Schedules
+            <div className="border-b border-slate-200 pb-4">
+              <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                <Clock className="w-5 h-5 text-purple-600" /> Platform-Wide Recurring Schedules
               </h2>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 Monitor and execute scheduled weekly and monthly audits configured by registered clients across the platform.
               </p>
             </div>
 
             {adminSchedulesError && (
-              <div className="rounded-xl border border-rose-500/50 bg-rose-950/30 p-4 text-rose-300 text-xs flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-rose-400 shrink-0" />
+              <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-rose-900 text-xs flex items-center gap-2 shadow-xs">
+                <AlertTriangle className="h-4 w-4 text-rose-600 shrink-0" />
                 <span>{adminSchedulesError}</span>
               </div>
             )}
 
-            <Card className="bg-slate-900 border-slate-800 shadow-xl overflow-hidden">
-              <CardHeader className="p-4 border-b border-slate-800 bg-slate-900/80">
+            <Card className="bg-white border-slate-200 shadow-xs rounded-xl overflow-hidden">
+              <CardHeader className="p-4 border-b border-slate-100 bg-slate-50/60">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-sm font-semibold text-white">Configured Automated Schedules</CardTitle>
-                    <CardDescription className="text-xs text-slate-400">
+                    <CardTitle className="text-sm font-bold text-slate-900">Configured Automated Schedules</CardTitle>
+                    <CardDescription className="text-xs text-slate-500">
                       Total: {adminSchedules.length} schedule(s)
                     </CardDescription>
                   </div>
@@ -1463,9 +1465,9 @@ export default function AdminPortalPage() {
                     size="sm"
                     variant="outline"
                     onClick={fetchAdminSchedules}
-                    className="border-slate-800 text-slate-300 text-xs h-8"
+                    className="border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs h-8 shadow-2xs font-medium"
                   >
-                    <RefreshCw className="w-3.5 h-3.5 mr-1" /> Refresh
+                    <RefreshCw className="w-3.5 h-3.5 mr-1 text-slate-500" /> Refresh
                   </Button>
                 </div>
               </CardHeader>
@@ -1473,7 +1475,7 @@ export default function AdminPortalPage() {
               <CardContent className="p-0">
                 {adminSchedulesLoading ? (
                   <div className="p-12 text-center text-slate-500">
-                    <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2 text-purple-400" />
+                    <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2 text-purple-600" />
                     <div className="text-sm">Loading recurring schedules...</div>
                   </div>
                 ) : adminSchedules.length === 0 ? (
@@ -1483,7 +1485,7 @@ export default function AdminPortalPage() {
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs">
-                      <thead className="bg-slate-950/60 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                      <thead className="bg-slate-50 text-slate-600 font-semibold uppercase tracking-wider border-b border-slate-200">
                         <tr>
                           <th className="py-3 px-4">Target Website</th>
                           <th className="py-3 px-4">User ID</th>
@@ -1494,32 +1496,32 @@ export default function AdminPortalPage() {
                           <th className="py-3 px-4 text-right">Administrative Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-800/60">
+                      <tbody className="divide-y divide-slate-100">
                         {adminSchedules.map((schedule) => (
-                          <tr key={schedule.id} className="hover:bg-slate-800/30 transition">
+                          <tr key={schedule.id} className="hover:bg-slate-50/70 transition">
                             <td className="py-3 px-4">
-                              <div className="font-medium text-white truncate max-w-xs">{schedule.targetUrl}</div>
+                              <div className="font-semibold text-slate-900 truncate max-w-xs">{schedule.targetUrl}</div>
                               {schedule.businessType && (
                                 <div className="text-[11px] text-slate-500">{schedule.businessType}</div>
                               )}
                             </td>
-                            <td className="py-3 px-4 font-mono text-[11px] text-slate-400 truncate max-w-[120px]">
+                            <td className="py-3 px-4 font-mono text-[11px] text-slate-500 truncate max-w-[120px]">
                               {schedule.userId}
                             </td>
                             <td className="py-3 px-4">
-                              <Badge className={schedule.frequency === "WEEKLY" ? "bg-cyan-500/20 text-cyan-300 border-cyan-500/30" : "bg-purple-500/20 text-purple-300 border-purple-500/30"}>
+                              <Badge className={schedule.frequency === "WEEKLY" ? "bg-sky-50 text-sky-700 border-sky-200 text-[10px] font-medium" : "bg-purple-50 text-purple-700 border-purple-200 text-[10px] font-medium"}>
                                 {schedule.frequency}
                               </Badge>
                             </td>
                             <td className="py-3 px-4">
-                              <Badge className={schedule.isActive ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" : "bg-amber-500/20 text-amber-300 border-amber-500/30"}>
+                              <Badge className={schedule.isActive ? "bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] font-medium" : "bg-amber-50 text-amber-700 border-amber-200 text-[10px] font-medium"}>
                                 {schedule.isActive ? "Active" : "Paused"}
                               </Badge>
                             </td>
-                            <td className="py-3 px-4 text-slate-300">
+                            <td className="py-3 px-4 text-slate-700 font-medium">
                               {new Date(schedule.nextRunAt).toLocaleString()}
                             </td>
-                            <td className="py-3 px-4 text-slate-400">
+                            <td className="py-3 px-4 text-slate-500">
                               {schedule.lastRunAt ? new Date(schedule.lastRunAt).toLocaleString() : "Never"}
                             </td>
                             <td className="py-3 px-4 text-right space-x-2">
@@ -1528,12 +1530,12 @@ export default function AdminPortalPage() {
                                 variant="outline"
                                 disabled={triggeringScheduleId === schedule.id}
                                 onClick={() => handleAdminRunScheduleNow(schedule.id)}
-                                className="h-7 text-xs border-slate-700 text-purple-300 hover:bg-purple-950/30"
+                                className="h-7 text-xs border-slate-200 bg-white text-purple-700 hover:bg-purple-50 shadow-2xs font-medium"
                               >
                                 {triggeringScheduleId === schedule.id ? (
-                                  <RefreshCw className="w-3 h-3 animate-spin mr-1" />
+                                  <RefreshCw className="w-3 h-3 animate-spin mr-1 text-purple-600" />
                                 ) : (
-                                  <Zap className="w-3 h-3 mr-1 text-amber-400" />
+                                  <Zap className="w-3 h-3 mr-1 text-amber-500" />
                                 )}
                                 Run Now
                               </Button>
@@ -1541,7 +1543,7 @@ export default function AdminPortalPage() {
                                 size="sm"
                                 variant="outline"
                                 onClick={() => handleAdminTogglePauseSchedule(schedule.id, schedule.isActive)}
-                                className="h-7 text-xs border-slate-700 text-slate-300 hover:bg-slate-800"
+                                className="h-7 text-xs border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs font-medium"
                               >
                                 {schedule.isActive ? "Pause" : "Resume"}
                               </Button>
@@ -1562,13 +1564,13 @@ export default function AdminPortalPage() {
       {/* AUDIT DETAIL MODAL / DRAWER */}
       {/* ========================================================================= */}
       {selectedAudit && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-xl overflow-hidden">
             {/* Modal Header */}
-            <div className="p-5 border-b border-slate-800 flex items-center justify-between">
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-white text-base truncate max-w-md">{selectedAudit.targetUrl}</h3>
+                  <h3 className="font-bold text-slate-900 text-base truncate max-w-md">{selectedAudit.targetUrl}</h3>
                   {renderStatusBadge(selectedAudit.status)}
                 </div>
                 <p className="text-xs font-mono text-slate-500 mt-1">Audit ID: {selectedAudit.id}</p>
@@ -1577,7 +1579,7 @@ export default function AdminPortalPage() {
                 size="sm"
                 variant="ghost"
                 onClick={() => setSelectedAudit(null)}
-                className="text-slate-400 hover:text-white"
+                className="text-slate-400 hover:text-slate-700 font-semibold"
               >
                 ✕
               </Button>
@@ -1586,35 +1588,35 @@ export default function AdminPortalPage() {
             {/* Modal Body */}
             <div className="p-6 overflow-y-auto space-y-6">
               {/* Score Display */}
-              <div className="flex items-center justify-between p-4 rounded-xl bg-slate-950 border border-slate-800">
+              <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-200 shadow-2xs">
                 <div>
-                  <span className="text-xs text-slate-400 uppercase font-semibold">Overall SEO Score</span>
-                  <div className="text-3xl font-extrabold text-cyan-400 mt-1">
+                  <span className="text-xs text-slate-500 uppercase font-semibold">Overall SEO Score</span>
+                  <div className="text-3xl font-extrabold text-purple-600 mt-1">
                     {selectedAudit.score !== null ? `${selectedAudit.score} / 100` : "Not Scored"}
                   </div>
                 </div>
-                <div className="text-right text-xs text-slate-400 space-y-1">
+                <div className="text-right text-xs text-slate-500 space-y-1">
                   <div>Created: {new Date(selectedAudit.createdAt).toLocaleString()}</div>
                   <div>Updated: {new Date(selectedAudit.updatedAt).toLocaleString()}</div>
                 </div>
               </div>
 
               {/* Phase 10: PDF Report Management */}
-              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3 shadow-2xs">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-purple-400" />
-                    <span className="text-xs font-semibold uppercase text-slate-300">PDF Audit Report</span>
+                    <FileText className="w-4 h-4 text-purple-600" />
+                    <span className="text-xs font-semibold uppercase text-slate-700">PDF Audit Report</span>
                   </div>
                   <div>
                     {selectedAudit.status === "COMPLETED" ? (
                       selectedAudit.pdfReportUrl ? (
-                        <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">Available</Badge>
+                        <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 font-medium">Available</Badge>
                       ) : (
-                        <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">Ready to Generate</Badge>
+                        <Badge className="bg-amber-50 text-amber-700 border-amber-200 font-medium">Ready to Generate</Badge>
                       )
                     ) : (
-                      <Badge variant="outline" className="text-slate-500">Unavailable ({selectedAudit.status})</Badge>
+                      <Badge variant="outline" className="text-slate-500 border-slate-200 bg-white">Unavailable ({selectedAudit.status})</Badge>
                     )}
                   </div>
                 </div>
@@ -1625,7 +1627,7 @@ export default function AdminPortalPage() {
                       size="sm"
                       onClick={() => handleAdminDownloadPdf(selectedAudit.id)}
                       disabled={isDownloadingPdf || isGeneratingPdf}
-                      className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs flex items-center gap-1.5"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs flex items-center gap-1.5 shadow-xs font-medium"
                     >
                       {isDownloadingPdf ? (
                         <>
@@ -1645,7 +1647,7 @@ export default function AdminPortalPage() {
                       variant="outline"
                       onClick={() => handleAdminGeneratePdf(selectedAudit.id)}
                       disabled={isGeneratingPdf}
-                      className="border-slate-700 text-slate-300 hover:text-white text-xs flex items-center gap-1.5"
+                      className="border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 text-xs flex items-center gap-1.5 shadow-2xs font-medium"
                     >
                       {isGeneratingPdf ? (
                         <>
@@ -1664,10 +1666,10 @@ export default function AdminPortalPage() {
 
                 {adminReportMessage && (
                   <div
-                    className={`p-2.5 text-xs rounded-lg border ${
+                    className={`p-2.5 text-xs rounded-xl border shadow-2xs ${
                       adminReportMessage.type === "success"
-                        ? "bg-emerald-950/40 border-emerald-800 text-emerald-300"
-                        : "bg-rose-950/40 border-rose-800 text-rose-300"
+                        ? "bg-emerald-50 border-emerald-200 text-emerald-900"
+                        : "bg-rose-50 border-rose-200 text-rose-900"
                     }`}
                   >
                     {adminReportMessage.text}
@@ -1676,18 +1678,18 @@ export default function AdminPortalPage() {
               </div>
 
               {/* Phase 10: Notification Deliveries History */}
-              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3 shadow-2xs">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Activity className="w-4 h-4 text-cyan-400" />
-                    <span className="text-xs font-semibold uppercase text-slate-300">Notification Delivery Log</span>
+                    <Activity className="w-4 h-4 text-blue-600" />
+                    <span className="text-xs font-semibold uppercase text-slate-700">Notification Delivery Log</span>
                   </div>
                   {selectedAudit.status === "COMPLETED" && (
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handleAdminDispatchNotifications(selectedAudit.id)}
-                      className="h-6 text-[11px] border-slate-700 text-cyan-400 hover:text-white"
+                      className="h-6 text-[11px] border-slate-200 bg-white text-blue-700 hover:bg-blue-50 shadow-2xs font-medium"
                     >
                       Dispatch Notifications
                     </Button>
@@ -1696,7 +1698,7 @@ export default function AdminPortalPage() {
 
                 {notificationsLoading ? (
                   <div className="text-center py-3 text-slate-500 text-xs flex items-center justify-center gap-2">
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin text-purple-400" />
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin text-purple-600" />
                     <span>Loading delivery history...</span>
                   </div>
                 ) : notificationsList.length === 0 ? (
@@ -1706,27 +1708,27 @@ export default function AdminPortalPage() {
                 ) : (
                   <div className="space-y-2">
                     {notificationsList.map((notif: NotificationDeliveryItem) => (
-                      <div key={notif.id} className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 text-xs flex items-center justify-between">
+                      <div key={notif.id} className="p-2.5 rounded-lg bg-white border border-slate-200 text-xs flex items-center justify-between shadow-2xs">
                         <div className="space-y-0.5">
                           <div className="flex items-center gap-2">
-                            <span className="font-semibold text-white">{notif.channel}</span>
+                            <span className="font-semibold text-slate-900">{notif.channel}</span>
                             <Badge
                               className={
                                 notif.status === "SENT" || notif.status === "DELIVERED"
-                                  ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-[10px]"
+                                  ? "bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] font-medium"
                                   : notif.status === "FAILED"
-                                  ? "bg-rose-500/20 text-rose-400 border-rose-500/30 text-[10px]"
-                                  : "bg-slate-700/40 text-slate-400 text-[10px]"
+                                  ? "bg-rose-50 text-rose-700 border-rose-200 text-[10px] font-medium"
+                                  : "bg-slate-100 text-slate-600 border-slate-200 text-[10px] font-medium"
                               }
                             >
                               {notif.status}
                             </Badge>
                           </div>
-                          <div className="text-[11px] text-slate-400">
-                            Recipient: <span className="font-mono text-slate-300">{notif.recipient}</span>
+                          <div className="text-[11px] text-slate-500">
+                            Recipient: <span className="font-mono text-slate-700">{notif.recipient}</span>
                           </div>
                           {notif.errorMessage && (
-                            <div className="text-[10px] text-rose-400 font-mono mt-1">
+                            <div className="text-[10px] text-rose-700 font-mono mt-1">
                               Error: {notif.errorMessage}
                             </div>
                           )}
@@ -1743,11 +1745,11 @@ export default function AdminPortalPage() {
 
               {/* Error Message for Failed Audits */}
               {selectedAudit.status === "FAILED" && (
-                <div className="p-4 rounded-xl bg-rose-950/40 border border-rose-800 space-y-2">
-                  <div className="flex items-center gap-2 text-rose-300 font-semibold text-xs">
-                    <AlertTriangle className="w-4 h-4" /> Failure Reason
+                <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 space-y-2 shadow-2xs">
+                  <div className="flex items-center gap-2 text-rose-800 font-bold text-xs">
+                    <AlertTriangle className="w-4 h-4 text-rose-600" /> Failure Reason
                   </div>
-                  <p className="text-xs text-rose-200/90 font-mono">
+                  <p className="text-xs text-rose-900 font-mono bg-white p-2.5 rounded-lg border border-rose-200">
                     {selectedAudit.errorMessage || "Processing terminated unexpectedly during crawler execution."}
                   </p>
                   <div className="pt-2">
@@ -1755,7 +1757,7 @@ export default function AdminPortalPage() {
                       size="sm"
                       disabled={retryingAuditId === selectedAudit.id}
                       onClick={() => handleRetryAudit(selectedAudit.id)}
-                      className="bg-rose-600 hover:bg-rose-700 text-white text-xs"
+                      className="bg-rose-600 hover:bg-rose-700 text-white text-xs shadow-xs font-medium"
                     >
                       <RotateCcw className={`w-3.5 h-3.5 mr-1.5 ${retryingAuditId === selectedAudit.id ? "animate-spin" : ""}`} />
                       Retry This Audit Now
@@ -1768,18 +1770,18 @@ export default function AdminPortalPage() {
               {selectedAudit.aiAnalysisData?.executive_summary && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-semibold uppercase text-slate-400">Executive Summary</h4>
+                    <h4 className="text-xs font-semibold uppercase text-slate-500">Executive Summary</h4>
                     {selectedAudit.aiAnalysisData?.audit_version?.includes("mock") ? (
-                      <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-[10px]">
+                      <Badge className="bg-amber-50 text-amber-700 border-amber-200 text-[10px] font-medium">
                         MOCK Claude (Offline Engine)
                       </Badge>
                     ) : (
-                      <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-[10px]">
+                      <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] font-medium">
                         REAL Claude ({selectedAudit.aiAnalysisData?.audit_version || "Live API"})
                       </Badge>
                     )}
                   </div>
-                  <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 leading-relaxed">
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 leading-relaxed shadow-2xs">
                     {selectedAudit.aiAnalysisData.executive_summary}
                   </div>
                 </div>
@@ -1788,12 +1790,12 @@ export default function AdminPortalPage() {
               {/* Score Breakdown */}
               {selectedAudit.aiAnalysisData?.score_breakdown && (
                 <div className="space-y-2">
-                  <h4 className="text-xs font-semibold uppercase text-slate-400">Category Score Breakdown</h4>
+                  <h4 className="text-xs font-semibold uppercase text-slate-500">Category Score Breakdown</h4>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {Object.entries(selectedAudit.aiAnalysisData.score_breakdown).map(([category, val]) => (
-                      <div key={category} className="p-3 rounded-lg bg-slate-950 border border-slate-800">
-                        <span className="text-[10px] text-slate-500 uppercase">{category.replace(/_/g, " ")}</span>
-                        <div className="text-lg font-bold text-white mt-0.5">{val ?? "—"}/100</div>
+                      <div key={category} className="p-3 rounded-xl bg-slate-50 border border-slate-200 shadow-2xs">
+                        <span className="text-[10px] text-slate-500 uppercase font-semibold">{category.replace(/_/g, " ")}</span>
+                        <div className="text-lg font-bold text-slate-900 mt-0.5">{val ?? "—"}/100</div>
                       </div>
                     ))}
                   </div>
@@ -1803,11 +1805,11 @@ export default function AdminPortalPage() {
               {/* Critical Issues */}
               {selectedAudit.aiAnalysisData?.critical_issues && selectedAudit.aiAnalysisData.critical_issues.length > 0 && (
                 <div className="space-y-2">
-                  <h4 className="text-xs font-semibold uppercase text-rose-400">Critical Issues Identified</h4>
+                  <h4 className="text-xs font-semibold uppercase text-rose-700">Critical Issues Identified</h4>
                   <div className="space-y-2">
                     {selectedAudit.aiAnalysisData.critical_issues.map((iss, i) => (
-                      <div key={i} className="p-3 rounded-lg bg-rose-950/20 border border-rose-900/50 text-xs text-rose-200">
-                        <div className="font-semibold">{iss.title || iss.issue || `Critical Issue #${i + 1}`}</div>
+                      <div key={i} className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-900 shadow-2xs">
+                        <div className="font-bold">{iss.title || iss.issue || `Critical Issue #${i + 1}`}</div>
                       </div>
                     ))}
                   </div>
@@ -1817,11 +1819,11 @@ export default function AdminPortalPage() {
               {/* Quick Wins */}
               {selectedAudit.aiAnalysisData?.quick_wins && selectedAudit.aiAnalysisData.quick_wins.length > 0 && (
                 <div className="space-y-2">
-                  <h4 className="text-xs font-semibold uppercase text-emerald-400">Quick Wins</h4>
+                  <h4 className="text-xs font-semibold uppercase text-emerald-700">Quick Wins</h4>
                   <div className="space-y-2">
                     {selectedAudit.aiAnalysisData.quick_wins.map((qw, i) => (
-                      <div key={i} className="p-3 rounded-lg bg-emerald-950/20 border border-emerald-900/50 text-xs text-emerald-200">
-                        <div className="font-semibold">{qw.finding || qw.action || `Optimization #${i + 1}`}</div>
+                      <div key={i} className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 shadow-2xs">
+                        <div className="font-bold">{qw.finding || qw.action || `Optimization #${i + 1}`}</div>
                       </div>
                     ))}
                   </div>
@@ -1830,8 +1832,8 @@ export default function AdminPortalPage() {
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 border-t border-slate-800 bg-slate-950/50 flex justify-end">
-              <Button size="sm" variant="outline" onClick={() => setSelectedAudit(null)} className="border-slate-800">
+            <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex justify-end">
+              <Button size="sm" variant="outline" onClick={() => setSelectedAudit(null)} className="border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs font-medium">
                 Close
               </Button>
             </div>

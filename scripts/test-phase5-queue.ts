@@ -123,7 +123,13 @@ async function runPhase5QueueTests() {
   // Cleanup test job
   const queue = getAuditQueue();
   const job = await queue.getJob(firstEnqueue.jobId);
-  if (job) await job.remove();
+  if (job) {
+    try {
+      await job.remove();
+    } catch {
+      // Ignore removal error if concurrently claimed by external background worker
+    }
+  }
 
   console.log("  ✔ Deterministic job ID and deduplication verified.");
 

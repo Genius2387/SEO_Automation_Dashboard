@@ -16,6 +16,7 @@ import {
 import { enforceDeterministicScoring, computeOverallScore, CATEGORY_WEIGHTS } from "./scoring";
 import { SEO_SYSTEM_PROMPT, buildUserPrompt, PROMPT_VERSION, prepareBoundedCrawlData } from "./prompts";
 import { getDeterministicMockAiResult } from "./mockAi";
+import { isAiMockActive } from "@/services/providers";
 
 // Re-export public schemas and utilities for external consumers
 export {
@@ -92,7 +93,7 @@ export async function analyzeSeoAudit(
   data: NormalizedAuditData,
   options: AnalyzerOptions = {}
 ): Promise<ClaudeAuditResult> {
-  const isMock = options.useMocks || process.env.USE_MOCKS === "true";
+  const isMock = isAiMockActive(options.useMocks);
   const apiKey = process.env.ANTHROPIC_API_KEY;
 
   // 1. Mock mode: return deterministic, schema-valid mock audit result without API consumption
@@ -188,7 +189,7 @@ export async function analyzeWithClaude(
   crawlData: CrawlResult,
   options: AnalyzerOptions = {}
 ): Promise<AIAnalysisResult> {
-  const isMock = options.useMocks || process.env.USE_MOCKS === "true";
+  const isMock = isAiMockActive(options.useMocks);
   const apiKey = process.env.ANTHROPIC_API_KEY;
 
   if (isMock || !apiKey || apiKey.startsWith("mock-")) {
