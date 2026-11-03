@@ -1,4 +1,5 @@
 import "dotenv/config";
+import http from "http";
 import { createAuditWorker } from "./auditWorker";
 import { closeRedisConnections, getQueueMetrics } from "@/queue";
 import { AuditService } from "@/services/auditService";
@@ -25,6 +26,36 @@ const worker = createAuditWorker({ concurrency });
 
 console.log(`[Worker Service] Worker started and listening on queue 'seo-audit-queue'...`);
 console.log(`[Worker Service] Concurrency: ${concurrency}. Redis: Upstash TLS.`);
+
+// 2b. Lightweight HTTP health server (Allows running as free Web Service on Render / Railway / Koyeb)
+const healthPort = parseInt(process.env.PORT || "10000", 10);
+const healthServer = http.createServer(async (req, res) => {
+  if (req.url === "/health" || req.url === "/") {
+    try {
+      const metrics = await getQueueMetrics();
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          status: "healthy",
+          service: "seo-audit-worker",
+          concurrency,
+          queue: metrics.counts,
+          timestamp: new Date().toISOString(),
+        })
+      );
+    } catch {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ status: "healthy", service: "seo-audit-worker" }));
+    }
+  } else {
+    res.writeHead(404, { "Content-Type": "text/plain" });
+    res.end("Not Found");
+  }
+});
+
+healthServer.listen(healthPort, () => {
+  console.log(`[Worker Service] HTTP health check listening on port ${healthPort}`);
+});
 
 // 3. Periodic health heartbeat every 60 seconds
 const heartbeatTimer = setInterval(async () => {
@@ -55,6 +86,7 @@ export const shutdownWorker = async (signal: string) => {
 
   try {
     clearInterval(heartbeatTimer);
+    healthServer.close();
     await worker.close();
     await closeRedisConnections();
     await prisma.$disconnect();
