@@ -93,8 +93,24 @@ export function createAuditWorker(options?: Partial<WorkerOptions>): Worker<Audi
         };
       }
 
-      // 3. Prevent duplicate work if audit is already completed
+      // 3. Prevent duplicate work if audit is already completed (with missing PDF healing)
       if (auditRecord.status === "COMPLETED") {
+        const hasPdf = await AuditReportService.hasAuditPdf(auditId);
+        if (!hasPdf) {
+          console.log(`[Worker Job #${job.id}] 📄 Generating missing PDF for completed audit '${auditId}'...`);
+          try {
+            const report = await AuditReportService.generateAuditPdf(auditId, { useMocks });
+            console.log(`[Worker Job #${job.id}] 📄 PDF report ready at: ${report.pdfUrl}`);
+            return {
+              auditId,
+              status: "COMPLETED",
+              score: auditRecord.score ?? undefined,
+            };
+          } catch (pdfErr) {
+            console.error(`[Worker Job #${job.id}] ⚠️ Failed to generate missing PDF report for '${auditId}':`, sanitizeErrorMessage(pdfErr));
+          }
+        }
+
         console.log(`[Worker Job #${job.id}] ℹ️ Audit '${auditId}' is already COMPLETED. Skipping duplicate execution.`);
         return {
           auditId,

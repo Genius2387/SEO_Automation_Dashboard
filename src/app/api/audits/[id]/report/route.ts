@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AuditService } from "@/services/auditService";
 import { authenticateRequest, canAccessAudit } from "@/lib/auth";
+import { addAuditJob } from "@/queue";
 import {
   AuditReportService,
   AuditNotFoundError,
@@ -103,6 +104,21 @@ export async function GET(
     if (!pdfBuffer) {
       // Prevent Vercel serverless from attempting to launch Puppeteer
       if (process.env.VERCEL === "1" || process.env.DISABLE_PUPPETEER === "true") {
+        // Automatically request the background worker to render if missing
+        try {
+          await addAuditJob({
+            auditId: cleanId,
+            targetUrl: audit.targetUrl,
+            businessType: audit.businessType,
+            city: audit.city,
+            state: audit.state,
+            userId: audit.userId,
+            useMocks: process.env.USE_MOCKS === "true",
+          });
+        } catch (enqueueErr) {
+          console.warn(`[API /api/audits/${cleanId}/report] Auto-enqueue background generation error:`, enqueueErr);
+        }
+
         return NextResponse.json(
           {
             success: false,
@@ -239,10 +255,10 @@ export async function POST(
       // Continue with force = false
     }
 
-    // 5b. Prevent Vercel serverless from attempting Puppeteer launches
+    // 5b. In Vercel serverless mode, delegate generation to persistent worker
     if (process.env.VERCEL === "1" || process.env.DISABLE_PUPPETEER === "true") {
       const exists = await AuditReportService.hasAuditPdf(cleanId);
-      if (exists) {
+      if (exists && !force) {
         return NextResponse.json({
           success: true,
           data: {
@@ -253,14 +269,42 @@ export async function POST(
         });
       }
 
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Serverless generation disabled",
-          message: "PDF report rendering is executed exclusively by the persistent background worker service.",
-        },
-        { status: 503 }
-      );
+      // Enqueue background worker to generate or regenerate the PDF
+      try {
+        await addAuditJob({
+          auditId: cleanId,
+          targetUrl: audit.targetUrl,
+          businessType: audit.businessType,
+          city: audit.city,
+          state: audit.state,
+          userId: audit.userId,
+          useMocks: process.env.USE_MOCKS === "true",
+        });
+
+        return NextResponse.json(
+          {
+            success: true,
+            queued: true,
+            message: "PDF report generation has been queued in the background worker service. Please wait a few moments.",
+            data: {
+              auditId: cleanId,
+              pdfReportUrl: `/api/audits/${cleanId}/report`,
+              status: "GENERATING",
+            },
+          },
+          { status: 202 }
+        );
+      } catch (enqueueErr) {
+        console.error(`[POST /api/audits/${cleanId}/report] Worker queue dispatch failed:`, enqueueErr);
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Queue dispatch failed",
+            message: "Unable to schedule PDF generation in worker queue.",
+          },
+          { status: 500 }
+        );
+      }
     }
 
     // 6. Generate report

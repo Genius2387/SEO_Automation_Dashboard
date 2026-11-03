@@ -266,9 +266,14 @@ export default function ClientDashboardPage() {
           body: JSON.stringify({ force: false }),
         });
         const json = await res.json();
-        if (!res.ok || !json.success) {
+        if (!res.ok && res.status !== 202) {
           throw new Error(json.message || "Failed to generate report");
         }
+
+        if (json.queued || res.status === 202) {
+          await new Promise((resolve) => setTimeout(resolve, 3500));
+        }
+
         setSelectedAudit((prev) =>
           prev ? { ...prev, pdfReportUrl: json.data?.pdfReportUrl || `/api/audits/${auditId}/report` } : null
         );
