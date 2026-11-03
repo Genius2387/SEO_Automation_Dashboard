@@ -119,6 +119,20 @@ model Audit {
   @@map("audits")
 }
 
+model AuditReportFile {
+  id        String   @id @default(cuid())
+  auditId   String   @unique
+  filename  String
+  mimeType  String   @default("application/pdf")
+  sizeBytes Int
+  data      Bytes
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([auditId])
+  @@map("audit_report_files")
+}
+
 model NotificationDelivery {
   id           String              @id @default(cuid())
   auditId      String

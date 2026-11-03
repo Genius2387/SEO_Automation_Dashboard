@@ -2,6 +2,9 @@
 const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  experimental: {
+    serverComponentsExternalPackages: ["bullmq", "ioredis"],
+  },
   async headers() {
     return [
       {

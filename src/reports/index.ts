@@ -202,7 +202,13 @@ export class AuditReportService {
         aiAnalysis,
       };
 
-      // 7. Render PDF via Puppeteer
+      // 7. Render PDF via Puppeteer (Exclusively executed in worker process, disabled in Vercel serverless)
+      if (process.env.VERCEL === "1" || process.env.DISABLE_PUPPETEER === "true") {
+        throw new PdfGenerationError(
+          "PDF report rendering is disabled in the Vercel serverless environment. PDF generation is executed exclusively by the persistent Railway worker."
+        );
+      }
+
       let pdfBuffer: Buffer;
       try {
         pdfBuffer = await renderAuditReportToPdf(reportData);

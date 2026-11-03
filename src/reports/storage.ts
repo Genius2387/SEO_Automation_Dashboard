@@ -1,5 +1,7 @@
 import fs from "fs";
 import path from "path";
+import os from "os";
+import prisma from "@/lib/prisma";
 import {
   S3Client,
   PutObjectCommand,
@@ -10,22 +12,30 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export interface StoredReportResult {
-  storageType: "local_disk" | "cloudflare_r2";
+  storageType: "postgres" | "cloudflare_r2" | "local_disk";
   key: string;
   reportUrl: string;
   sizeBytes: number;
 }
 
-const STORAGE_DIR = path.resolve(process.cwd(), "storage", "reports");
+const isServerless = process.env.VERCEL === "1" || Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME);
+const STORAGE_DIR = isServerless
+  ? path.join(os.tmpdir(), "edgelink-reports")
+  : path.resolve(process.cwd(), "storage", "reports");
 
 /**
- * Ensures the local storage directory exists
+ * Ensures the local storage directory exists safely (no-op if read-only)
  */
-function ensureStorageDirectory(): string {
-  if (!fs.existsSync(STORAGE_DIR)) {
-    fs.mkdirSync(STORAGE_DIR, { recursive: true });
+function ensureStorageDirectory(): string | null {
+  try {
+    if (!fs.existsSync(STORAGE_DIR)) {
+      fs.mkdirSync(STORAGE_DIR, { recursive: true });
+    }
+    return STORAGE_DIR;
+  } catch {
+    // Read-only filesystem (e.g. Vercel Lambda root)
+    return null;
   }
-  return STORAGE_DIR;
 }
 
 let r2ClientInstance: S3Client | null = null;
@@ -66,26 +76,33 @@ export function setR2ClientForTesting(mockClient: S3Client | null): void {
 
 /**
  * Storage Service for persisting and retrieving generated audit PDF reports
- * with support for both local disk and Cloudflare R2 object storage.
+ * with support for PostgreSQL (default shared storage), local disk, and Cloudflare R2.
  */
 export class ReportStorageService {
   /**
    * Returns the currently configured active storage provider name
    */
-  static getProviderName(): "cloudflare_r2" | "local_disk" {
+  static getProviderName(): "postgres" | "cloudflare_r2" | "local_disk" {
+    const configuredProvider = process.env.REPORT_STORAGE_PROVIDER?.trim().toLowerCase();
+
+    if (configuredProvider === "local") {
+      return "local_disk";
+    }
+
     const r2Client = getR2Client();
     const r2BucketName = process.env.R2_BUCKET_NAME?.trim();
-    if (r2Client && r2BucketName) {
+    if ((configuredProvider === "r2" || !configuredProvider) && r2Client && r2BucketName) {
       return "cloudflare_r2";
     }
-    return "local_disk";
+
+    // Default: PostgreSQL persistent database storage shared between Vercel and Railway
+    return "postgres";
   }
 
   /**
-   * Persists a generated PDF buffer to durable storage.
-   * Uses Cloudflare R2 if configured via environment credentials or STORAGE_PROVIDER="r2",
-   * otherwise falls back to local disk storage.
-   * Persisted URL is always the secure authorized endpoint: `/api/audits/${auditId}/report`
+   * Persists a generated PDF buffer to durable shared storage.
+   * By default, stores in PostgreSQL `audit_report_files` table, shared between
+   * Railway worker and Vercel web application. Also supports Cloudflare R2 and local disk.
    */
   static async saveReportPdf(auditId: string, pdfBuffer: Buffer): Promise<StoredReportResult> {
     if (!auditId || typeof auditId !== "string" || auditId.trim().length === 0) {
@@ -100,13 +117,43 @@ export class ReportStorageService {
     const filename = `${sanitizedAuditId}.pdf`;
     const canonicalApiUrl = `/api/audits/${sanitizedAuditId}/report`;
     const objectKey = `reports/${filename}`;
+    const provider = this.getProviderName();
 
-    // Always ensure local file is written as cache / fallback
-    ensureStorageDirectory();
-    const localPath = path.join(STORAGE_DIR, filename);
-    fs.writeFileSync(localPath, pdfBuffer);
+    // 1. Primary PostgreSQL database storage (ensures Railway -> Vercel cross-service availability)
+    try {
+      await prisma.auditReportFile.upsert({
+        where: { auditId: sanitizedAuditId },
+        create: {
+          auditId: sanitizedAuditId,
+          filename,
+          mimeType: "application/pdf",
+          sizeBytes: pdfBuffer.length,
+          data: pdfBuffer,
+        },
+        update: {
+          filename,
+          mimeType: "application/pdf",
+          sizeBytes: pdfBuffer.length,
+          data: pdfBuffer,
+          updatedAt: new Date(),
+        },
+      });
+    } catch (dbErr) {
+      console.warn(`[Report Storage] Warning: Could not persist PDF to PostgreSQL for #${sanitizedAuditId}:`, dbErr);
+    }
 
-    // Check if Cloudflare R2 storage is active
+    // 2. Safe local disk cache write (only if directory is writable)
+    try {
+      const dir = ensureStorageDirectory();
+      if (dir) {
+        const localPath = path.join(dir, filename);
+        fs.writeFileSync(localPath, pdfBuffer);
+      }
+    } catch {
+      // Non-fatal if filesystem is read-only (e.g. Vercel)
+    }
+
+    // 3. Cloudflare R2 object store if configured
     const r2Client = getR2Client();
     const r2BucketName = process.env.R2_BUCKET_NAME?.trim();
 
@@ -132,13 +179,21 @@ export class ReportStorageService {
           sizeBytes: pdfBuffer.length,
         };
       } catch (err) {
-        console.warn("[Report Storage] Cloudflare R2 upload failed, retained local disk copy:", err);
+        console.warn("[Report Storage] Cloudflare R2 upload failed, falling back to PostgreSQL storage:", err);
       }
     }
 
-    // Default Local Disk Storage
+    if (provider === "local_disk") {
+      return {
+        storageType: "local_disk",
+        key: filename,
+        reportUrl: canonicalApiUrl,
+        sizeBytes: pdfBuffer.length,
+      };
+    }
+
     return {
-      storageType: "local_disk",
+      storageType: "postgres",
       key: filename,
       reportUrl: canonicalApiUrl,
       sizeBytes: pdfBuffer.length,
@@ -147,7 +202,10 @@ export class ReportStorageService {
 
   /**
    * Retrieves the raw PDF Buffer for a given audit ID.
-   * Checks local disk cache first; if missing, pulls from Cloudflare R2.
+   * Order:
+   * 1. Local disk cache (if present and readable)
+   * 2. PostgreSQL database storage (shared between Vercel and Railway)
+   * 3. Cloudflare R2 object storage (if configured)
    */
   static async getReportPdf(auditId: string): Promise<Buffer | null> {
     if (!auditId) return null;
@@ -155,16 +213,41 @@ export class ReportStorageService {
     const filename = `${sanitizedAuditId}.pdf`;
     const filePath = path.join(STORAGE_DIR, filename);
 
-    // 1. Check local disk cache
-    if (fs.existsSync(filePath)) {
-      try {
+    // 1. Check local disk cache first (fastest for worker or local development)
+    try {
+      if (fs.existsSync(filePath)) {
         return fs.readFileSync(filePath);
-      } catch (err) {
-        console.error(`[Report Storage] Error reading local PDF for #${sanitizedAuditId}:`, err);
       }
+    } catch {
+      // Local file read failed or not permitted, continue to DB
     }
 
-    // 2. Fetch from Cloudflare R2 if configured
+    // 2. Retrieve from PostgreSQL database storage
+    try {
+      const record = await prisma.auditReportFile.findUnique({
+        where: { auditId: sanitizedAuditId },
+      });
+
+      if (record && record.data) {
+        const buffer = Buffer.from(record.data);
+
+        // Attempt to cache locally in tmpdir if possible
+        try {
+          const dir = ensureStorageDirectory();
+          if (dir) {
+            fs.writeFileSync(path.join(dir, filename), buffer);
+          }
+        } catch {
+          // Ignore cache write error in read-only environment
+        }
+
+        return buffer;
+      }
+    } catch (dbErr) {
+      console.warn(`[Report Storage] Database lookup failed for PDF #${sanitizedAuditId}:`, dbErr);
+    }
+
+    // 3. Fetch from Cloudflare R2 if configured
     const r2Client = getR2Client();
     const r2BucketName = process.env.R2_BUCKET_NAME?.trim();
 
@@ -185,9 +268,15 @@ export class ReportStorageService {
           }
           const buffer = Buffer.concat(chunks);
 
-          // Cache locally for subsequent fast reads
-          ensureStorageDirectory();
-          fs.writeFileSync(filePath, buffer);
+          // Cache locally if writable
+          try {
+            const dir = ensureStorageDirectory();
+            if (dir) {
+              fs.writeFileSync(path.join(dir, filename), buffer);
+            }
+          } catch {
+            // Ignore
+          }
 
           return buffer;
         }
@@ -228,7 +317,7 @@ export class ReportStorageService {
   }
 
   /**
-   * Checks whether a report PDF exists in storage (locally or in R2)
+   * Checks whether a report PDF exists in storage (locally, in PostgreSQL, or in R2)
    */
   static async hasReportPdf(auditId: string): Promise<boolean> {
     if (!auditId) return false;
@@ -236,8 +325,24 @@ export class ReportStorageService {
     const filename = `${sanitizedAuditId}.pdf`;
     const filePath = path.join(STORAGE_DIR, filename);
 
-    if (fs.existsSync(filePath)) return true;
+    // 1. Local disk check
+    try {
+      if (fs.existsSync(filePath)) return true;
+    } catch {
+      // continue
+    }
 
+    // 2. PostgreSQL check
+    try {
+      const count = await prisma.auditReportFile.count({
+        where: { auditId: sanitizedAuditId },
+      });
+      if (count > 0) return true;
+    } catch {
+      // continue
+    }
+
+    // 3. R2 check
     const r2Client = getR2Client();
     const r2BucketName = process.env.R2_BUCKET_NAME?.trim();
     if (r2Client && r2BucketName) {
@@ -258,7 +363,7 @@ export class ReportStorageService {
   }
 
   /**
-   * Deletes a report PDF from both local disk and R2
+   * Deletes a report PDF from PostgreSQL, local disk, and R2
    */
   static async deleteReportPdf(auditId: string): Promise<boolean> {
     if (!auditId) return false;
@@ -267,15 +372,27 @@ export class ReportStorageService {
     const filePath = path.join(STORAGE_DIR, filename);
     let deleted = false;
 
-    if (fs.existsSync(filePath)) {
-      try {
-        fs.unlinkSync(filePath);
-        deleted = true;
-      } catch {
-        // ignore
-      }
+    // 1. Delete from PostgreSQL
+    try {
+      const res = await prisma.auditReportFile.deleteMany({
+        where: { auditId: sanitizedAuditId },
+      });
+      if (res.count > 0) deleted = true;
+    } catch {
+      // ignore
     }
 
+    // 2. Delete from local disk
+    try {
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+        deleted = true;
+      }
+    } catch {
+      // ignore
+    }
+
+    // 3. Delete from R2
     const r2Client = getR2Client();
     const r2BucketName = process.env.R2_BUCKET_NAME?.trim();
     if (r2Client && r2BucketName) {
